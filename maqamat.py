@@ -73,5 +73,4 @@ jins = {
 }
 
 print(jins)
-
-#print(jins'Ajam')
+print(jins['Ajam']['cents'])
