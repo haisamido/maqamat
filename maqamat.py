@@ -77,43 +77,48 @@ jins = {
     "Nawa-Athar": {},
     "Sikah": {},
     "Nahwand": {
-        "cents": [200, 100, 200],
+        "cents": [200, 200, 100, 200],
         "qarar": {},
         "hassas": {}},
     "Rast": {},
     "Saba": {},
     "Zamzam": {},
-    "Must'ar": {}
+    "Must'ar": {},
+    "Spare":{
+        "cents":[200]
+    }
 }
 
 maqam_def = {
-    "Bayat": {"tonic": "D4", "ajnas": ["Bayat", "Nahwand"]} 
+    "Bayat": {"tonic": "D4", "ajnas": ["Bayat", "Nahwand", "Spare"]} 
 }
-
-#print(maqam['Bayat']['ajnas'])
 
 i=0
 maqam_argv='Bayat'
 
 for key in maqam_def[maqam_argv]['ajnas']:
+    print(key)
     l=len(jins[key]['cents'])
     if i == 0:
         maqam = np.array(jins[key]['cents'])
     else:
-        maqam = np.append(maqam,jins[key]['cents'][1:l])
+        # maqam = np.append(maqam,jins[key]['cents'][1:l])
+        maqam = np.append(maqam,jins[key]['cents'])
     i=i+1
 
 def cents_from_frequency(f1,f2,cents_in_octave):
     return cents_in_octave*math.log2(f2 / f1)
 
 def frequency_from_cents(f1,cents,cents_in_octave):
-    return f1*math.exp(cents/cents_in_octave)
+    return f1*2**(cents/cents_in_octave)
 
 #f2=frequency_from_cents(110,0,1200)
 
-#print(frequency_from_cents(293.665,200,1200))
-print(cents_from_frequency(293.665,329.628 ,1200))
+print(maqam)
 
+#print(frequency_from_cents(293.665,200,1200))
+# print(cents_from_frequency(293.665,329.628 ,1200))
+# print(frequency_from_cents(293.665,200,1200))
 c=0
 cu=np.array([c])
 
@@ -125,7 +130,7 @@ maqam_def[maqam_argv].update({ "cents":cu })
 
 # print(cu)
 
-#print(maqam_def[maqam_argv]['cents'])
+print(maqam_def[maqam_argv]['cents'])
 
 f1=293.665
 # E4 = 329.628 
