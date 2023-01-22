@@ -4,6 +4,12 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
+import wave
+import time
+import sys
+
+import pyaudio
+
 
 def nth_root_of_2(n):
     return (2)**(1/n)
@@ -112,6 +118,36 @@ def cents_from_frequency(f1,f2,cents_in_octave):
 def frequency_from_cents(f1,cents,cents_in_octave):
     return f1*2**(cents/cents_in_octave)
 
+def generate_frequency(f):
+    p = pyaudio.PyAudio()
+
+    volume = 1.0  # range [0.0, 1.0]
+    fs = 44100  # sampling rate, Hz, must be integer
+    duration = 0.66  # in seconds, may be float
+    #f = 220.0  # sine frequency, Hz, may be float
+
+    # generate samples, note conversion to float32 array
+    samples = (np.sin(2 * np.pi * np.arange(fs * duration) * f / fs)).astype(np.float32)
+
+    # per @yahweh comment explicitly convert to bytes sequence
+    output_bytes = (volume * samples).tobytes()
+
+    # for paFloat32 sample values must be in range [-1.0, 1.0]
+    stream = p.open(format=pyaudio.paFloat32,
+                    channels=1,
+                    rate=fs,
+                    output=True)
+
+    # play. May repeat with different volume values (if done interactively)
+    start_time = time.time()
+    stream.write(output_bytes)
+   # print("Played sound for {:.2f} seconds".format(time.time() - start_time))
+
+    stream.stop_stream()
+    stream.close()
+
+    p.terminate()
+
 #f2=frequency_from_cents(110,0,1200)
 
 print(maqam)
@@ -128,11 +164,24 @@ for key in maqam:
 
 maqam_def[maqam_argv].update({ "cents":cu })
 
-# print(cu)
 
 print(maqam_def[maqam_argv]['cents'])
 
+maqam_cents = maqam_def[maqam_argv]['cents']
+#maqam_cents = np.arange(0, 1+(1200/24)*24, 1200/24, dtype=float)
+print(maqam_cents)
+
 f1=293.665
-# E4 = 329.628 
-for cent in maqam_def[maqam_argv]['cents']:
-  print(cent,frequency_from_cents(f1,cent,cents_in_octave))
+f1=246.9
+#f1=220.
+# E4 = 329.628
+
+for cent in maqam_cents:
+
+    f=frequency_from_cents(f1,cent,cents_in_octave)
+    print(cent,f)
+    generate_frequency(f)
+   # print(cent,frequency_from_cents(f1,cent,cents_in_octave))
+
+#----
+
