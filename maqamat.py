@@ -10,22 +10,18 @@ import sys
 
 import pyaudio
 
-
 def nth_root_of_2(n):
     return (2)**(1/n)
 
 #
 # Pitches
 #
-
-
 def frequency(f0, a, n):
     # https://pages.mtu.edu/~suits/NoteFreqCalcs.html
     # https://pages.mtu.edu/~suits/notefreqs.html
     # n = the number of half intervals away from the fixed note you are
     f = f0 * (a)**n
     return f
-
 
 cents_in_octave = 1200
 # Equally Tempered Intervals
@@ -96,7 +92,8 @@ jins = {
 }
 
 maqam_def = {
-    "Bayat": {"tonic": "D4", "ajnas": ["Bayat", "Nahwand", "Spare"]} 
+    "Bayat": {"tonic": "D4", "ajnas": ["Bayat", "Nahwand", "Spare"]},
+    "Ajam" :{"ajnas": ["Ajam","Spare"]} 
 }
 
 i=0
@@ -121,22 +118,27 @@ def frequency_from_cents(f1,cents,cents_in_octave):
 def generate_frequency(f):
     p = pyaudio.PyAudio()
 
-    volume = 1.0  # range [0.0, 1.0]
-    fs = 44100  # sampling rate, Hz, must be integer
-    duration = 0.66  # in seconds, may be float
-    #f = 220.0  # sine frequency, Hz, may be float
+    volume   = .75  # range [0.0, 1.0]
+    fs       = 44100  # sampling rate, Hz, must be integer
+    duration = 0.33  # in seconds, may be float
 
     # generate samples, note conversion to float32 array
-    samples = (np.sin(2 * np.pi * np.arange(fs * duration) * f / fs)).astype(np.float32)
+    
+    p1 = np.sin(2 * np.pi * np.arange(fs * duration) * f / fs)
+    ph = p1
+    
+    samples = ( ph ).astype(np.float32)
 
     # per @yahweh comment explicitly convert to bytes sequence
     output_bytes = (volume * samples).tobytes()
 
     # for paFloat32 sample values must be in range [-1.0, 1.0]
-    stream = p.open(format=pyaudio.paFloat32,
-                    channels=1,
-                    rate=fs,
-                    output=True)
+    stream = p.open(
+        format   = pyaudio.paFloat32,
+        channels = 1,
+        rate     = fs,
+        output   = True
+    )
 
     # play. May repeat with different volume values (if done interactively)
     start_time = time.time()
@@ -145,7 +147,6 @@ def generate_frequency(f):
 
     stream.stop_stream()
     stream.close()
-
     p.terminate()
 
 #f2=frequency_from_cents(110,0,1200)
@@ -164,24 +165,24 @@ for key in maqam:
 
 maqam_def[maqam_argv].update({ "cents":cu })
 
-
 print(maqam_def[maqam_argv]['cents'])
 
 maqam_cents = maqam_def[maqam_argv]['cents']
 #maqam_cents = np.arange(0, 1+(1200/24)*24, 1200/24, dtype=float)
 print(maqam_cents)
 
-f1=293.665
+# Starting tonic, i.e. frequency
 f1=246.9
-#f1=220.
-# E4 = 329.628
+
+from fractions import Fraction
+
+print("%6s %s" %("Cents","Frequency"))
 
 for cent in maqam_cents:
-
     f=frequency_from_cents(f1,cent,cents_in_octave)
-    print(cent,f)
+    f_ratio = f/f1
+    print("%6.1f %f %f %s" %(cent,f,f_ratio,Fraction(f_ratio)))
     generate_frequency(f)
-   # print(cent,frequency_from_cents(f1,cent,cents_in_octave))
 
 #----
 

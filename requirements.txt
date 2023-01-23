@@ -1,0 +1,6 @@
+sys
+numpy
+matplotlib
+pyaudio
+wave
+ipykernel
