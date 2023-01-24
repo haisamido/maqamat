@@ -179,10 +179,9 @@ from fractions import Fraction
 print("%6s %s" %("Cents","Frequency"))
 
 for cent in maqam_cents:
-    f=frequency_from_cents(f1,cent,cents_in_octave)
+    f       = frequency_from_cents(f1, cent, cents_in_octave)
     f_ratio = f/f1
-    r_f_ratio=round(f_ratio,2)
-    print("%6.1f %f %f %s %s" %(cent,f,f_ratio,r_f_ratio,Fraction(r_f_ratio)))
+    print("%6.1f %f %f %s" %(cent,f,f_ratio,Fraction(f_ratio).limit_denominator(15)))
     generate_frequency(f)
 
 #----
