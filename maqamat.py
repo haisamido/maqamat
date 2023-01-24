@@ -158,10 +158,12 @@ print(maqam)
 # print(frequency_from_cents(293.665,200,1200))
 c=0
 cu=np.array([c])
+cs=np.array([c])
 
 for key in maqam:
     c=c+key
     cu=np.append(cu,c)
+    cs=np.append(cs,key)
 
 maqam_def[maqam_argv].update({ "cents":cu })
 
@@ -170,6 +172,7 @@ print(maqam_def[maqam_argv]['cents'])
 maqam_cents = maqam_def[maqam_argv]['cents']
 #maqam_cents = np.arange(0, 1+(1200/24)*24, 1200/24, dtype=float)
 print(maqam_cents)
+print(cs)
 
 # Starting tonic, i.e. frequency
 f1=246.9
