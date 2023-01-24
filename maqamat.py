@@ -120,7 +120,7 @@ def generate_frequency(f):
 
     volume   = .75  # range [0.0, 1.0]
     fs       = 44100  # sampling rate, Hz, must be integer
-    duration = 0.33  # in seconds, may be float
+    duration = 0.2  # in seconds, may be float
 
     # generate samples, note conversion to float32 array
     
@@ -181,7 +181,8 @@ print("%6s %s" %("Cents","Frequency"))
 for cent in maqam_cents:
     f=frequency_from_cents(f1,cent,cents_in_octave)
     f_ratio = f/f1
-    print("%6.1f %f %f %s" %(cent,f,f_ratio,Fraction(f_ratio)))
+    r_f_ratio=round(f_ratio,2)
+    print("%6.1f %f %f %s %s" %(cent,f,f_ratio,r_f_ratio,Fraction(r_f_ratio)))
     generate_frequency(f)
 
 #----
