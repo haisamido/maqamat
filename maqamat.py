@@ -118,7 +118,7 @@ def frequency_from_cents(f1,cents,cents_in_octave):
 def generate_frequency(f):
     p = pyaudio.PyAudio()
 
-    volume   = .75  # range [0.0, 1.0]
+    volume   = 1.75  # range [0.0, 1.0]
     fs       = 44100  # sampling rate, Hz, must be integer
     duration = 0.2  # in seconds, may be float
 
