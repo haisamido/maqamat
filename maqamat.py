@@ -10,6 +10,8 @@ import sys
 
 import pyaudio
 
+from fractions import Fraction
+
 def nth_root_of_2(n):
     return (2)**(1/n)
 
@@ -66,23 +68,26 @@ cents_per_interval = cents_per_octave/TET_intervals
 f1                 = 110
 
 scale_in_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
+delta_cents          = np.diff(scale_in_cents)
+
 scale_in_frequencies = frequency_from_cents(f1, scale_in_cents, cents_per_octave)
 frequency_ratios     = scale_in_frequencies/f1
-#generated_frequenies = generate_frequency(scale_in_frequencies)
 
-from fractions import Fraction
+print("%s  %9s  %10s  %8s  %7s  %9s  %11s  %11s" %("#", "cents", "f (Hz)", "f/f1", "ratio","fl(ratio)","abs err","rel err (%)"))
+print("--------------------------------------------------------------------------------")
 
-print("%s  %9s  %10s  %8s  %7s  %10s" %("#", "cents", "f (Hz)", "f/f1", "ratio","rel error"))
-
-i=0
-for cent in scale_in_cents:
-    f       = frequency_from_cents(f1, cent, cents_per_octave)
-    f_ratio = f/f1
-    fraction = Fraction(f_ratio).limit_denominator(4*TET_intervals)
-    perror   = 100*(f_ratio - fraction)/f_ratio
-    print("%2s  %8.3f  %10.6f  %8f  %7s  %11.8f" %(i,cent,f,f_ratio,fraction,perror))
+for i, cent in enumerate(scale_in_cents):
+    f       = scale_in_frequencies[i]
+    f_ratio = frequency_ratios[i]
+    
+#    delta_cent = delta_cents[i]
+    
+    fraction       = Fraction(f_ratio).limit_denominator(4*TET_intervals)
+    fraction_float = float(fraction)
+    
+    aerror         = f_ratio - float(fraction)
+    rerror         = 100*(aerror)/f_ratio
+    
+    print("%2s  %8.3f  %10.6f  %8f  %7s  %9f  %11.8f  %11.8f" %(i,cent,f,f_ratio,fraction,fraction_float,aerror,rerror))
 #    generate_frequency(f)
-    i=i+1
-
-#----
 
