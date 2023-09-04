@@ -67,6 +67,8 @@ TET_intervals      = 53
 cents_per_interval = cents_per_octave/TET_intervals
 f1                 = 220
 
+#scale_in_ratios     = [256/243, 128/81, 32/27, 16/9, 4/3, 1/1, 3/2, 9/8, 27/16, 81/64, 243/128, 729/512 ]
+
 scale_in_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
 delta_cents          = np.diff(scale_in_cents)
 
