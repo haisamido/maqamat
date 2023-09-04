@@ -65,7 +65,7 @@ def generate_frequency(f):
 cents_per_octave   = 1200
 TET_intervals      = 53
 cents_per_interval = cents_per_octave/TET_intervals
-f1                 = 110
+f1                 = 220
 
 scale_in_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
 delta_cents          = np.diff(scale_in_cents)
@@ -89,5 +89,4 @@ for i, cent in enumerate(scale_in_cents):
     rerror         = 100*(aerror)/f_ratio
     
     print("%2s  %8.3f  %10.6f  %8f  %7s  %9f  %11.8f  %11.8f" %(i,cent,f,f_ratio,fraction,fraction_float,aerror,rerror))
-#    generate_frequency(f)
-
+    generate_frequency(f)
