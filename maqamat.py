@@ -94,7 +94,6 @@ scale_in_frequencies = frequency_from_ratio(f1,scale_in_ratios)
 
 frequency_ratios     = scale_in_frequencies/f1
 
-
 print("%s  %9s  %10s  %8s  %7s  %9s  %11s  %11s" %("#", "cents", "f (Hz)", "f/f1", "ratio","fl(ratio)","abs err","rel err (%)"))
 print("--------------------------------------------------------------------------------")
 
