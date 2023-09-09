@@ -5,6 +5,11 @@
 SHELL=bash
 export DIFF_PROGRAM:=vimdiff
 
+generate_0:
+	./maqamat.py
+
+generate_1:
+	./maqamat.py -E -i 7 -A -d .2 -v 2 -s 44100
 
 print-%: ## print a variable and its value, e.g. print the value of variable PROVIDER: make print-PROVIDER
 	@echo $* = $($*)
