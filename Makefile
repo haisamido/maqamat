@@ -5,7 +5,6 @@
 SHELL=bash
 export DIFF_PROGRAM:=vimdiff
 
-
 generate_%:
 	./maqamat.py -E -i $*
 
