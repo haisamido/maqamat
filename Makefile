@@ -5,11 +5,21 @@
 SHELL=bash
 export DIFF_PROGRAM:=vimdiff
 
-generate_0:
-	./maqamat.py
 
-generate_1:
-	./maqamat.py -E -i 7 -A -d .2 -v 2 -s 44100
+generate_%:
+	./maqamat.py -E -i $*
+
+generate_by_ratios:
+	./maqamat.py -R
+
+generate_all: ## generate all equally tempered chromatic scales, by ratios
+	@$(MAKE) --silent generate_7; echo;
+	@$(MAKE) --silent generate_12;echo;
+	@$(MAKE) --silent generate_17;echo;
+	@$(MAKE) --silent generate_24;echo;
+	@$(MAKE) --silent generate_31;echo;
+	@$(MAKE) --silent generate_53;echo;
+	@$(MAKE) --silent generate_by_ratios
 
 print-%: ## print a variable and its value, e.g. print the value of variable PROVIDER: make print-PROVIDER
 	@echo $* = $($*)
