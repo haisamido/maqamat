@@ -5,19 +5,31 @@
 SHELL=bash
 export DIFF_PROGRAM:=vimdiff
 
+TET_INTERVALS=5 7 9 10 12 17 19 22 24 31 34 41 53 60 72 79
+
 generate_%:
-	./maqamat.py -E -i $*
+	./maqamat.py -E -i $*; echo
 
 generate_by_ratios:
 	./maqamat.py -R
 
 generate_all: ## generate all equally tempered chromatic scales, by ratios
-	@$(MAKE) --silent generate_7; echo;
-	@$(MAKE) --silent generate_12;echo;
-	@$(MAKE) --silent generate_17;echo;
-	@$(MAKE) --silent generate_24;echo;
-	@$(MAKE) --silent generate_31;echo;
-	@$(MAKE) --silent generate_53;echo;
+	@$(MAKE) --silent generate_5
+	@$(MAKE) --silent generate_7
+	@$(MAKE) --silent generate_9
+	@$(MAKE) --silent generate_10
+	@$(MAKE) --silent generate_12
+	@$(MAKE) --silent generate_17
+	@$(MAKE) --silent generate_19
+	@$(MAKE) --silent generate_22
+	@$(MAKE) --silent generate_24
+	@$(MAKE) --silent generate_31
+	@$(MAKE) --silent generate_34
+	@$(MAKE) --silent generate_41
+	@$(MAKE) --silent generate_53
+	@$(MAKE) --silent generate_60
+	@$(MAKE) --silent generate_72
+	@$(MAKE) --silent generate_79
 	@$(MAKE) --silent generate_by_ratios
 
 print-%: ## print a variable and its value, e.g. print the value of variable PROVIDER: make print-PROVIDER
