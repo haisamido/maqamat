@@ -20,7 +20,7 @@ parser.add_argument('-c','--cents-per-octave',  type=float, default=1200, help='
 parser.add_argument('-o','--number-of-octaves', type=float, default=1, help='number of octaves')
 
 parser.add_argument('-E','--by-et',     action='store_true', default=True, help='by equal temparement')
-parser.add_argument('-i','--et-intervals', type=float, default=12,  help='Number of equally tempered intervals')
+parser.add_argument('-i','--intervals', type=float, default=12,  help='Number of equally tempered intervals')
 
 parser.add_argument('-R','--by-ratios', action='store_true', default=False, help='providing scale by ratios')
 parser.add_argument('-r','--ratios',    type=str,  default='[1/1, 253/243, 16/15, 10/9 , 9/8, 32/27, 6/5, 5/4, 81/64, 4/3, 27/20, 45/32, 729/512, 3/2, 128/81, 8/5, 5/3, 27/16, 16/9, 9/5, 15/8, 243/128, 2/1]', help='Scale by ratios')
@@ -37,17 +37,11 @@ f1                = args['f1']
 cents_per_octave  = args['cents_per_octave']
 number_of_octaves = args['number_of_octaves']
 
-by_et              = args['by_et']
-et_intervals       = args['et_intervals']
-cents_per_interval = cents_per_octave/et_intervals
-
-by_ratios       = args['by_ratios']
-
+# Audio section
 generate_audio  = args['generate_audio']
-
-volume        = args['volume']
-sampling_rate = args['sampling_rate']
-duration      = args['duration']
+volume          = args['volume']
+sampling_rate   = args['sampling_rate']
+duration        = args['duration']
 
 def nth_root_of_2(n):
     return (2)**(1/n)
@@ -107,25 +101,32 @@ def generate_frequency(f):
     stream.close()
     p.terminate()
 
-if by_et is True:
+# By Equal Tempermant
+if args['by_et'] is True:
+    number_of_intervals  = args['intervals']
+    cents_per_interval   = cents_per_octave/number_of_intervals
+    
     scale_by_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
     scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
-    intervals            = scale_by_cents.size
-    limit_denominator    = intervals-1
+    number_of_intervals  = scale_by_cents.size
+    limit_denominator    = number_of_intervals-1
 
-if by_ratios is True:
+# By Ratios
+if args['by_ratios'] is True:
     ratios               = eval(args['ratios'])
     scale_by_ratios      = np.array(ratios)
+    
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
-    intervals            = scale_by_cents.size
-    limit_denominator    = intervals**5
+    number_of_intervals  = scale_by_cents.size
+    limit_denominator    = number_of_intervals**5
 
 frequency_ratios = scale_in_frequencies/f1
 delta_cents      = np.diff(scale_by_cents)
+#delta_cents      = np.insert(0, delta_cents)
 
 print("%-3s %9s  %10s  %8s  %14s  %9s  %11s  %11s" %("#", "cents", "f (Hz)", "f/f1", "ratio","fl(ratio)","abs err","rel err (%)"))
-print("--------------------------------------------------------------------------------")
+print("----------------------------------------------------------------------------------------")
 
 for i, cent in enumerate(scale_by_cents):
     f       = scale_in_frequencies[i]
