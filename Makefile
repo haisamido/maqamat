@@ -9,32 +9,41 @@ TET_INTERVALS =5 7 9 10 12 17 19 22 24 31 34 41 53 60 72 79
 
 TET_INTERVAL  =12
 
+RESULTS_DIR =./results
+ET_DIR      =$(RESULTS_DIR)/by_equal_temperament
+RATIOS_DIR  =$(RESULTS_DIR)/by_ratios
+
+directories: 
+	mkdir -p $(ET_DIR) $(RATIOS_DIR)
+
 generate_all: ## generate all equally tempered chromatic scales, and by ratios
 	@$(MAKE) --silent generate_all_by_ets;
 	@$(MAKE) --silent generate_all_by_ratios
 
-generate_all_by_ets: ## generate all defined equally tempered chromatic scales
+generate_all_by_ets: directories ## generate all defined equally tempered chromatic scales
 	@$(foreach TET_INTERVAL, $(TET_INTERVALS), \
-		$(MAKE) --silent generate_by_et TET_INTERVAL=$(TET_INTERVAL);)
+		$(MAKE) --silent generate_by_et TET_INTERVAL=$(TET_INTERVAL) > $(ET_DIR)/equal_temperament_$(TET_INTERVAL).tsv;)
 
-generate_all_by_ratios:
-	@$(MAKE) --silent generate_by_ratios
+generate_all_by_ratios: directories
+	@$(MAKE) --silent generate_by_ratios > $(RATIOS_DIR)/just_intervals.tsv;
+	@$(MAKE) --silent generate_by_ratios2 > $(RATIOS_DIR)/pythagorean_intervals.tsv;
+	@$(MAKE) --silent generate_by_ratios3 > $(RATIOS_DIR)/pythagorean_intervals_turkish.tsv
 
 generate_by_et: ## generate chromatic scale of TET_INTERVAL, e.g. make generate TET_INTERVAL=24
-	./maqamat.py -E -i $(TET_INTERVAL); echo
+	@./maqamat.py -E -i $(TET_INTERVAL)
 
 just_intervals        ='[1/1,   16/15, 10/9,   6/5,   5/4, 4/3,   45/32,    64/45, 3/2,    8/5,   5/3,  9/5,    15/8, 2/1]'
 pythagorean_intervals ='[1/1, 256/243,  9/8, 32/27, 81/64, 4/3, 729/512, 1024/729, 3/2, 128/81, 27/16, 16/9, 243/128, 2/1]'
 pythagorean_intervals_in_turkish_music ='[1/1, 253/243, 2187/2048, 65536/59049, 9/8, 32/27, 19683/16384, 8192/6561, 81/64, 4/3, 177147/131072, 1024/729, 729/512, 262144/177147, 3/2, 128/81, 6561/4096, 32768/19683, 27/16, 16/9, 59049/32768, 4096/2187, 243/128, 1048576/531441, 2/1]'
 
 generate_by_ratios:
-	./maqamat.py -R -r $(just_intervals)
+	@./maqamat.py -R -r $(just_intervals)
 
 generate_by_ratios2:
-	./maqamat.py -R -r $(pythagorean_intervals)
+	@./maqamat.py -R -r $(pythagorean_intervals)
 
 generate_by_ratios3:
-	./maqamat.py -R -r $(pythagorean_intervals_in_turkish_music)
+	@./maqamat.py -R -r $(pythagorean_intervals_in_turkish_music)
 
 print-%: ## print a variable and its value, e.g. print the value of variable PROVIDER: make print-PROVIDER
 	@echo $* = $($*)

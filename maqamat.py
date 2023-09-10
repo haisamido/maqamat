@@ -4,6 +4,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
+import re
 
 import wave
 import time
@@ -111,37 +112,62 @@ if args['by_et'] is True:
     scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals-1
+    description          = "type=equal temperament intervals"
 
 # By Ratios
 if args['by_ratios'] is True:
-    ratios               = eval(args['ratios'])
-    scale_by_ratios      = np.array(ratios)
+    ratios               = re.sub("\s*,\s*", ",", args['ratios'])
+    scale_by_ratios      = np.array(eval(ratios))
     
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals**5
+    description          = "type=intervals by ratios, keywords=ratios,just,pythogrean"
 
 scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
 
 frequency_ratios = scale_in_frequencies/f1
-delta_cents      = np.diff(scale_by_cents)
-#delta_cents      = np.insert(0, delta_cents)
 
-print("%-3s %9s  %10s  %8s  %14s  %9s  %11s  %11s" %("#", "cents", "f (Hz)", "f/f1", "ratio","fl(ratio)","abs err","rel err (%)"))
-print("----------------------------------------------------------------------------------------")
+delta_cents  = np.diff(scale_by_cents)
+delta_cents  = np.append(0, delta_cents)
+
+description = f"# {description}. number of intervals={number_of_intervals-1}\n"
+
+print(description)
+
+print("%-4s %8s %8s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","aerror","rerror","f (Hz)"))
+print("#-------------------------------------------------------------------------------------------------")
+
+derived_ratios =np.array([])
 
 for i, cent in enumerate(scale_by_cents):
     f       = scale_in_frequencies[i]
     f_ratio = frequency_ratios[i]
 
     fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
+    
+    derived_ratios = np.append(derived_ratios, f"{fraction}")
+    
     fraction_float = float(fraction)
+    fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
     
-    aerror         = f_ratio - float(fraction)
-    rerror         = 100*(aerror)/f_ratio
-    
-    print("%-3s  %8.3f  %10.6f  %8f  %14s  %9f  %11.8f  %11.8f" %(i,cent,f,f_ratio,fraction,fraction_float,aerror,rerror))
+    # absolute error
+    aerror    = f_ratio - float(fraction)
+    # relative error
+    rerror    = 100*(aerror)/f_ratio
+
+    print("%-4s %8.3f %8.3f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f))
     
     if generate_audio is True:
         generate_frequency(f)
+
+if args['by_ratios'] is True:
+    ratios_str=re.sub(",", ", ", ratios)
+    print(f"\n# given   ratios: {ratios_str}")
+
+print(f"# derived ratios: {derived_ratios}")
+print(f"\n# cents sha256:{scale_hash_value}")
+
+separator = ','
+print(separator.join(derived_ratios))
