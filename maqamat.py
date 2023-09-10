@@ -23,7 +23,7 @@ parser.add_argument('-E','--by-et',     action='store_true', default=True, help=
 parser.add_argument('-i','--et-intervals', type=float, default=12,  help='Number of equally tempered intervals')
 
 parser.add_argument('-R','--by-ratios', action='store_true', default=False, help='providing scale by ratios')
-parser.add_argument('-r','--ratios',    type=str,  default=[1/1, 253/243, 16/15, 10/9 , 9/8, 32/27, 6/5, 5/4, 81/64, 4/3, 27/20, 45/32, 729/512, 3/2, 128/81, 8/5, 5/3, 27/16, 16/9, 9/5, 15/8, 243/128, 2/1], help='Scale by ratios')
+parser.add_argument('-r','--ratios',    type=str,  default='[1/1, 253/243, 16/15, 10/9 , 9/8, 32/27, 6/5, 5/4, 81/64, 4/3, 27/20, 45/32, 729/512, 3/2, 128/81, 8/5, 5/3, 27/16, 16/9, 9/5, 15/8, 243/128, 2/1]', help='Scale by ratios')
 
 parser.add_argument('-A','--generate-audio', action='store_true', default=False, help='Generate audio per interval')
 parser.add_argument('-v','--volume',        type=float, default=1.75,  help='Audio volume')
@@ -42,7 +42,6 @@ et_intervals       = args['et_intervals']
 cents_per_interval = cents_per_octave/et_intervals
 
 by_ratios       = args['by_ratios']
-scale_by_ratios = np.array(args['ratios'])
 
 generate_audio  = args['generate_audio']
 
@@ -115,6 +114,8 @@ if by_et is True:
     limit_denominator    = intervals-1
 
 if by_ratios is True:
+    ratios               = eval(args['ratios'])
+    scale_by_ratios      = np.array(ratios)
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     intervals            = scale_by_cents.size
