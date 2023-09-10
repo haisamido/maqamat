@@ -12,6 +12,7 @@ import sys
 import pyaudio
 
 from fractions import Fraction
+from hashlib import sha256
 
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
@@ -120,6 +121,8 @@ if args['by_ratios'] is True:
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals**5
+
+scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
 
 frequency_ratios = scale_in_frequencies/f1
 delta_cents      = np.diff(scale_by_cents)
