@@ -17,7 +17,7 @@ from hashlib import sha256
 
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
-parser.add_argument('-f1','--f1', type=float, default=220, help='foo help')
+parser.add_argument('-f1','--f1', type=float, default=440, help='foo help')
 parser.add_argument('-c','--cents-per-octave',  type=float, default=1200, help='cents per octave')
 parser.add_argument('-o','--number-of-octaves', type=float, default=1, help='number of octaves')
 
@@ -112,7 +112,7 @@ if args['by_et'] is True:
     scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals-1
-    description          = "type=equal temperament intervals"
+    description          = f"# Type=equal temperament intervals, Number of intervals={number_of_intervals-1}, keywords=TET,ET,EDO"
 
 # By Ratios
 if args['by_ratios'] is True:
@@ -123,7 +123,7 @@ if args['by_ratios'] is True:
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals**5
-    description          = "type=intervals by ratios, keywords=ratios,just,pythogrean"
+    description          = f"# Type=intervals by ratios, Number of intervals={number_of_intervals-1}, keywords=ratios,just,pythogrean"
 
 scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
 
@@ -132,10 +132,9 @@ frequency_ratios = scale_in_frequencies/f1
 delta_cents  = np.diff(scale_by_cents)
 delta_cents  = np.append(0, delta_cents)
 
-description = f"# {description}. number of intervals={number_of_intervals-1}\n"
-
-print(description)
-
+print("\n#-------------------------------------------------------------------------------------------------")
+print(f"{description}")
+print("#-------------------------------------------------------------------------------------------------")
 print("%-4s %8s %8s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","aerror","rerror","f (Hz)"))
 print("#-------------------------------------------------------------------------------------------------")
 
@@ -146,7 +145,6 @@ for i, cent in enumerate(scale_by_cents):
     f_ratio = frequency_ratios[i]
 
     fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
-    
     derived_ratios = np.append(derived_ratios, f"{fraction}")
     
     fraction_float = float(fraction)
@@ -162,12 +160,21 @@ for i, cent in enumerate(scale_by_cents):
     if generate_audio is True:
         generate_frequency(f)
 
+print("#-------------------------------------------------------------------------------------------------")
+
 if args['by_ratios'] is True:
-    ratios_str=re.sub(",", ", ", ratios)
-    print(f"\n# given   ratios: {ratios_str}")
+    given_ratios_str   = re.sub(",", ", ", ratios)
+    
+    print(f"# given   ratios: {given_ratios_str}")
 
-print(f"# derived ratios: {derived_ratios}")
-print(f"\n# cents sha256:{scale_hash_value}")
+# scale_by_cents_str = ','.join(np.array2string(scale_by_cents))
 
-separator = ','
-print(separator.join(derived_ratios))
+derived_ratios_str = ', '.join(derived_ratios) 
+print(f"# derived ratios: [{derived_ratios_str}]")
+
+# print(scale_by_cents)
+# x=np.array2string(scale_by_cents)
+
+
+print(f"# derived  cents: sha256:{scale_hash_value}")
+print("#-------------------------------------------------------------------------------------------------")
