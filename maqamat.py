@@ -119,12 +119,12 @@ if by_ratios is True:
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     intervals            = scale_by_cents.size
-    limit_denominator    = intervals*intervals
+    limit_denominator    = intervals**5
 
 frequency_ratios = scale_in_frequencies/f1
 delta_cents      = np.diff(scale_by_cents)
 
-print("%-3s %9s  %10s  %8s  %7s  %9s  %11s  %11s" %("#", "cents", "f (Hz)", "f/f1", "ratio","fl(ratio)","abs err","rel err (%)"))
+print("%-3s %9s  %10s  %8s  %14s  %9s  %11s  %11s" %("#", "cents", "f (Hz)", "f/f1", "ratio","fl(ratio)","abs err","rel err (%)"))
 print("--------------------------------------------------------------------------------")
 
 for i, cent in enumerate(scale_by_cents):
@@ -137,7 +137,7 @@ for i, cent in enumerate(scale_by_cents):
     aerror         = f_ratio - float(fraction)
     rerror         = 100*(aerror)/f_ratio
     
-    print("%-3s  %8.3f  %10.6f  %8f  %7s  %9f  %11.8f  %11.8f" %(i,cent,f,f_ratio,fraction,fraction_float,aerror,rerror))
+    print("%-3s  %8.3f  %10.6f  %8f  %14s  %9f  %11.8f  %11.8f" %(i,cent,f,f_ratio,fraction,fraction_float,aerror,rerror))
     
     if generate_audio is True:
         generate_frequency(f)
