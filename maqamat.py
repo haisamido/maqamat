@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 import re
+import hashlib
 
 import wave
 import time
@@ -164,17 +165,22 @@ print("#------------------------------------------------------------------------
 
 if args['by_ratios'] is True:
     given_ratios_str   = re.sub(",", ", ", ratios)
-    
-    print(f"# given   ratios: {given_ratios_str}")
+    given_ratios_str   = re.sub("\[|\]", "", given_ratios_str)
+    print(f"# given   ratios: [{given_ratios_str}]")
 
-# scale_by_cents_str = ','.join(np.array2string(scale_by_cents))
+    # m = hashlib.sha256(given_ratios_str.encode('UTF-8'))
+    # print(m.hexdigest())
 
-derived_ratios_str = ', '.join(derived_ratios) 
+derived_ratios_str = (', '.join(map(str, derived_ratios)))
+#print(sha256(derived_ratios_str).hexdigest())
+
+# m = hashlib.sha256(derived_ratios_str.encode('UTF-8'))
+# print(m.hexdigest())
+
 print(f"# derived ratios: [{derived_ratios_str}]")
 
-# print(scale_by_cents)
-# x=np.array2string(scale_by_cents)
-
+scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
+#print(scale_by_cents_str)
 
 print(f"# derived  cents: sha256:{scale_hash_value}")
 print("#-------------------------------------------------------------------------------------------------")
