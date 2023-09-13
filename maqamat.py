@@ -73,7 +73,20 @@ def generate_scale_by_et():
 
 def derive_scale_by_ratios():
     return 0    
-        
+
+radians_per_cent   = (2*math.pi)/cents_per_octave
+degrees_per_radian = 360.0/(2*math.pi)
+
+def get_arcs_per_cents(scale_by_cents,cents_per_octave):
+    
+    arcs_per_cents =np.array([])
+    
+    for i, cent in enumerate(scale_by_cents):
+        radian_at_cent = radians_per_cent * scale_by_cents[i]
+        arcs_per_cents = np.append(arcs_per_cents, radian_at_cent)
+
+    return arcs_per_cents
+    
 def generate_frequency(f):
     p = pyaudio.PyAudio()
     
@@ -113,7 +126,7 @@ if args['by_et'] is True:
     scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals-1
-    description          = f"# Type=equal temperament intervals, Number of intervals={number_of_intervals-1}, keywords=TET,ET,EDO"
+    description          = f"Type=equal temperament intervals, Number of intervals={number_of_intervals-1}, keywords=TET,ET,EDO"
 
 # By Ratios
 if args['by_ratios'] is True:
@@ -124,17 +137,22 @@ if args['by_ratios'] is True:
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = number_of_intervals**5
-    description          = f"# Type=intervals by ratios, Number of intervals={number_of_intervals-1}, keywords=ratios,just,pythogrean"
+    description          = f"Type=intervals by ratios, Number of intervals={number_of_intervals-1}, keywords=ratios,just,pythogrean"
 
 scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
+
+arcs_per_cents = get_arcs_per_cents(scale_by_cents,cents_per_octave)
 
 frequency_ratios = scale_in_frequencies/f1
 
 delta_cents  = np.diff(scale_by_cents)
 delta_cents  = np.append(0, delta_cents)
 
-print("\n#-------------------------------------------------------------------------------------------------")
-print(f"{description}")
+#print(f"## {description}\n")
+#print('```bash')
+print()
+print("#-------------------------------------------------------------------------------------------------")
+print(f"# {description}")
 print("#-------------------------------------------------------------------------------------------------")
 print("%-4s %8s %8s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","aerror","rerror","f (Hz)"))
 print("#-------------------------------------------------------------------------------------------------")
@@ -151,12 +169,15 @@ for i, cent in enumerate(scale_by_cents):
     fraction_float = float(fraction)
     fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
     
+    arc_per_delta_cent = delta_cents[i] * radians_per_cent
+
     # absolute error
     aerror    = f_ratio - float(fraction)
     # relative error
     rerror    = 100*(aerror)/f_ratio
 
     print("%-4s %8.3f %8.3f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f))
+#          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
     
     if generate_audio is True:
         generate_frequency(f)
@@ -184,3 +205,5 @@ scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
 
 print(f"# derived  cents: sha256:{scale_hash_value}")
 print("#-------------------------------------------------------------------------------------------------")
+
+#print('```')
