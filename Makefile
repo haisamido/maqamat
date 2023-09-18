@@ -30,6 +30,7 @@ generate_all_by_ratios: directories
 	@$(MAKE) --silent generate_by_ratios3 > $(RATIOS_DIR)/pythagorean_intervals_turkish.tsv
 
 generate_by_et: ## generate chromatic scale of TET_INTERVAL, e.g. make generate TET_INTERVAL=24
+	echo "Generating TET with $(TET_INTERVAL) intervals" >&2
 	@./maqamat.py -E -i $(TET_INTERVAL)
 
 just_intervals        ='[1,   16/15, 10/9,   6/5,   5/4, 4/3,   45/32,    64/45, 3/2,    8/5,   5/3,  9/5,    15/8, 2]'
@@ -37,12 +38,15 @@ pythagorean_intervals ='[1, 256/243,  9/8, 32/27, 81/64, 4/3, 729/512, 1024/729,
 pythagorean_intervals_in_turkish_music ='[1, 253/243, 2187/2048, 65536/59049, 9/8, 32/27, 19683/16384, 8192/6561, 81/64, 4/3, 177147/131072, 1024/729, 729/512, 262144/177147, 3/2, 128/81, 6561/4096, 32768/19683, 27/16, 16/9, 59049/32768, 4096/2187, 243/128, 1048576/531441, 2]'
 
 generate_by_ratios:
+	echo "Generating intervals with Just Intonation ratios" >&2
 	@./maqamat.py -R -r $(just_intervals)
 
 generate_by_ratios2:
+	echo "Generating intervals with Pythagorean ratios" >&2
 	@./maqamat.py -R -r $(pythagorean_intervals)
 
 generate_by_ratios3:
+	echo "Generating intervals with Pythagorean ratios in Turkish Music" >&2
 	@./maqamat.py -R -r $(pythagorean_intervals_in_turkish_music)
 
 print-%: ## print a variable and its value, e.g. print the value of variable PROVIDER: make print-PROVIDER
