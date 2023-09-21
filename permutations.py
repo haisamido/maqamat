@@ -13,15 +13,67 @@ x=np.arange(intervals)
 m=7
 scale_length=3
 
-d=m-scale_length-1
+A=np.zeros(((m+1)*2, m+1), dtype=int)
 
-#for i in range(1,2):
+row = 0
+col = 0
 
-for j in range(1, m):
-    for k in range(j+1, m+1):
-        print('0,%d,%d' % (j, k))
+while row <= m:
+    print(row,col)
+    
+    while col <= m:    
+        A[row][col] = 1
+        A[row][0]   = 1
+        sum_of_row  = A.sum(axis=1)
         
-    print()
+        if sum_of_row[row] == scale_length:
+            print("  SUM: ", row, col, sum_of_row[row])
+            row     = row + 1
+
+        col = col+1
+
+    col=0
+     
+print(A)
+
+    
+# col=0..m
+#   row=0
+    #   cell(0,0)=1
+    #   cell(0,1)=1
+    #   cell(0,2)=1
+    # if sum(cell(1,0..2))=scale_length=3
+    #    row=row+1
+#   row=1
+    #   cell(1,0)=1
+    #   cell(1,1)=1
+    #   cell(1,3)=1
+    # if sum(cell(2,1..2,4))=scale_length=3
+    #    row=row+1
+#   row=3
+    #   cell(3,1)=1
+    #   cell(3,2)=1
+    #   cell(3,5)=1
+    # if sum(cell(3,1..2,5))=scale_length=3
+    #    row=row+1
+#   row=4
+    #   cell(4,1)=1
+    #   cell(4,2)=1
+    #   cell(4,6)=1
+    # if sum(cell(4,1..2,6))=scale_length
+    #    row=row+1
+#   row=5
+    #   cell(5,1)=1
+    #   cell(5,2)=1
+    #   cell(5,7)=1   
+    # if sum(cell(5,1..2,7))=scale_length
+    #    row=row+1
+#   row=6
+    #   cell(6,1)=1
+    #   cell(6,2)=1
+    #   cell(6,8)=1   
+
+
 
 # 0,1,2,3,4,5,6,7
 #
