@@ -2,13 +2,13 @@
 
 import itertools
 
-intervals    = 12
-scale_length = 6
+number_of_pitches = 12
+pitches_in_scale  = 5
 
-chromatic_scale = list(range(0, intervals+1))
+full_scale   = list(range(0, number_of_pitches))
 
-print(chromatic_scale)
-scales = itertools.combinations(chromatic_scale,scale_length)
+print(full_scale)
+scales = itertools.combinations(full_scale,pitches_in_scale)
 
 scales=list(scales)
 
