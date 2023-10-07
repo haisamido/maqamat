@@ -3,18 +3,21 @@
 import itertools
 
 number_of_pitches = 12
-pitches_in_scale  = 5
+pitches_in_scale  = 3
 
-full_scale   = list(range(0, number_of_pitches))
+chromatic_scale   = list(range(0, number_of_pitches))
 
-print(full_scale)
-scales = itertools.combinations(full_scale,pitches_in_scale)
+print(chromatic_scale)
+print(number_of_pitches,pitches_in_scale)
 
-scales=list(scales)
+pitch_classes = itertools.combinations(chromatic_scale,pitches_in_scale)
+# Convert to list
+pitch_classes = list(pitch_classes)
 
-for scale in scales:
-    for interval in scale:
+print()
+for pitch_class in pitch_classes:
+    for interval in pitch_class:
         if interval == 0:
-            print(scale)
+            print(pitch_class)
         
 exit()
