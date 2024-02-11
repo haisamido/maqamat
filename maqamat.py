@@ -74,6 +74,10 @@ def generate_scale_by_et():
 def derive_scale_by_ratios():
     return 0    
 
+# {0,1,3,5,6,7,9,11}
+
+# (101011101011)₂ = (1 × 2¹¹) + (0 × 2¹⁰) + (1 × 2⁹) + (0 × 2⁸) + (1 × 2⁷) + (1 × 2⁶) + (1 × 2⁵) + (0 × 2⁴) + (1 × 2³) + (0 × 2²) + (1 × 2¹) + (1 × 2⁰) = (2795)₁₀
+
 radians_per_cent   = (2*math.pi)/cents_per_octave
 degrees_per_radian = 360.0/(2*math.pi)
 
