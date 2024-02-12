@@ -25,20 +25,20 @@ cents = np.array([ 0.000, 111.731, 182.404, 315.641, 386.314, 498.045, 590.224, 
 def create_canvas(output_file="bracelet.svg", canvas_width=600, canvas_height=600):
     return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
     
-def add_bracelet_circle(obj='dwg', radius=200, cx=canvas_width/2, cy=canvas_height/2,stroke='white',stroke_width=1):
+def add_bracelet_circle(obj='dwg', radius=r_bracelet, cx=canvas_width/2, cy=canvas_height/2, fill=svgwrite.rgb(140, 171, 255), stroke='white', stroke_width=.5):
     
     obj.add(
         obj.circle( 
             center=(cx,cy), 
             r=radius, 
-            fill=svgwrite.rgb(140, 171, 255),
+            fill=fill,
             stroke=stroke, 
             stroke_width=stroke_width,
             id='bracelet'
         )
     )
 
-def add_notes(obj='dwg', cents=cents, r_bracelet=r_bracelet, cx=canvas_width/2, cy=canvas_height/2):
+def add_notes(obj='dwg', cents=cents, radius=r_bracelet, stroke='red', stroke_width=.75, cx=canvas_width/2, cy=canvas_height/2):
     
     theta =-1*math.pi/2
     
@@ -46,8 +46,8 @@ def add_notes(obj='dwg', cents=cents, r_bracelet=r_bracelet, cx=canvas_width/2, 
     for cent in cents:
         step=(2*math.pi)*(cent/cents_per_octave)
         
-        x = r_bracelet* math.cos(step) + cx
-        y = r_bracelet* math.sin(step) + cy
+        x = radius * math.cos(step) + cx
+        y = radius * math.sin(step) + cy
         
         # https://math.stackexchange.com/a/814981
         𝑥rot=(math.cos(theta)*(x-cx) - math.sin(theta)*(y-cy) + cx)
@@ -63,8 +63,8 @@ def add_notes(obj='dwg', cents=cents, r_bracelet=r_bracelet, cx=canvas_width/2, 
                 center=(x,y),
                 r=r_note,
                 fill=svgwrite.rgb(0, 255, 0, '%'), 
-                stroke='red', 
-                stroke_width=1,
+                stroke=stroke, 
+                stroke_width=stroke_width,
                 id=cent
             )
         )
@@ -80,19 +80,19 @@ def add_notes(obj='dwg', cents=cents, r_bracelet=r_bracelet, cx=canvas_width/2, 
     
         i = i + 1
     
-def add_cent_tic_marks(obj='dwg'):
+def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='red', stroke_width=0.2):
     
     theta =-1*math.pi/2
     
     cents = []
-    for i in range(0,cents_per_octave,3):
+    for i in range(0,cents_per_octave,interval):
         cents = np.append(cents, i)
     
     for cent in cents:
         step=(2*math.pi)*(cent/cents_per_octave)
         
-        x = r_bracelet* math.cos(step) + cx
-        y = r_bracelet* math.sin(step) + cy
+        x = radius * math.cos(step) + cx
+        y = radius * math.sin(step) + cy
         
         # https://math.stackexchange.com/a/814981
         𝑥rot=(math.cos(theta)*(x-cx) - math.sin(theta)*(y-cy) + cx)
@@ -105,22 +105,24 @@ def add_cent_tic_marks(obj='dwg'):
             obj.line(
                 (cx, cy), 
                 (x, y), 
-                stroke=svgwrite.rgb(255, 0, 0, '%'), 
-                stroke_width=0.2
+                stroke=stroke, 
+                stroke_width=stroke_width
             )
         )
     
         i = i + 1
-
   
 def main():
 
     dwg = create_canvas()
     
-    add_bracelet_circle(dwg, stroke='black', stroke_width=.5)
-    add_cent_tic_marks(dwg)
+    add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
+    add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
+    add_cent_tic_marks(dwg, interval=1)
     add_notes(dwg)
     
+#    add_bracelet_circle(dwg, stroke='black', radius=250, stroke_width=.75)
+        
     dwg.save()
     
 if __name__ == "__main__":
