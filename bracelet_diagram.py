@@ -53,7 +53,7 @@ def add_notes(obj='dwg', cents=cents, radius=r_bracelet, stroke='red', stroke_wi
         𝑥rot=(math.cos(theta)*(x-cx) - math.sin(theta)*(y-cy) + cx)
         yrot=(math.sin(theta)*(x-cx) - math.cos(theta)*(y-cy) + cy)
         
-        print(i,cent,' x,y ---> ',x,y,' xrot, yrot ---> ',xrot,yrot)
+        #print(i,cent,' x,y ---> ',x,y,' xrot, yrot ---> ',xrot,yrot)
         
         x=xrot
         y=yrot
@@ -94,6 +94,12 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
         x = radius * math.cos(step) + cx
         y = radius * math.sin(step) + cy
         
+        # dx0 = radius/0.975 * math.cos(step) + cx
+        # dy0 = radius/0.975 * math.sin(step) + cy
+        
+        # dxf=x-dx0
+        # dyf=y-dy0
+        
         # https://math.stackexchange.com/a/814981
         𝑥rot=(math.cos(theta)*(x-cx) - math.sin(theta)*(y-cy) + cx)
         yrot=(math.sin(theta)*(x-cx) - math.cos(theta)*(y-cy) + cy)
@@ -106,7 +112,8 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
                 (cx, cy), 
                 (x, y), 
                 stroke=stroke, 
-                stroke_width=stroke_width
+                stroke_width=stroke_width,
+                id='tic_marks'
             )
         )
     
@@ -118,8 +125,11 @@ def main():
     
     add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
     add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
-    add_cent_tic_marks(dwg, interval=1)
-    add_notes(dwg)
+    
+    add_cent_tic_marks(dwg, stroke='blue', radius=1.025*r_bracelet, interval=2)
+    add_cent_tic_marks(dwg, stroke='red',  radius=1.05*r_bracelet,  interval=6)
+    
+    add_notes(dwg, stroke='red')
     
 #    add_bracelet_circle(dwg, stroke='black', radius=250, stroke_width=.75)
         
