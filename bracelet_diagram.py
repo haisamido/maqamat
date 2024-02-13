@@ -126,9 +126,10 @@ def main():
     add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
     add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
     
-    add_cent_tic_marks(dwg, stroke='blue', radius=1.025*r_bracelet, interval=2)
-    add_cent_tic_marks(dwg, stroke='red',  radius=1.05*r_bracelet,  interval=6)
-    
+    add_cent_tic_marks(dwg, stroke='blue',  radius=1.025*r_bracelet, interval=2)
+    add_cent_tic_marks(dwg, stroke='red',   radius=1.05*r_bracelet,  interval=6)
+    add_cent_tic_marks(dwg, stroke='green', stroke_width=.75, radius=1.075*r_bracelet,  interval=50)
+        
     add_notes(dwg, stroke='red')
     
 #    add_bracelet_circle(dwg, stroke='black', radius=250, stroke_width=.75)
