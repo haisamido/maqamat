@@ -1,31 +1,27 @@
 /**
  * @file musitorica.ino
- * @author your name (you@domain.com)
+ * @author Haisam Ido (haisam.ido@gmail.com)
  * @brief 
  * @version 0.1
  * @date 2024-04-23
- * 
+ * https://wokwi.com/projects/395360264870700033
  * @copyright Copyright (c) 2024
- * @simulation https://wokwi.com/projects/395360264870700033 
+ * 
  */
+
 #include <LiquidCrystal_I2C.h>
-// Define the I2C LCD connection settings
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Replace 0x27 with your LCD I2C address if different
 
 #include <Adafruit_NeoPixel.h>
 
 #include <Keypad.h>
-/*#include <Servo.h>*/
-#include "SafeState.h"
 #include "icons.h"
 
 /* Locking mechanism definitions */
 #define SERVO_PIN        6
 #define SERVO_LOCK_POS   20
 #define SERVO_UNLOCK_POS 90
-Servo lockServo;
-
-/* Display */
 
 /* Keypad setup */
 const byte KEYPAD_ROWS    = 4;
@@ -57,11 +53,7 @@ const int number_of_pitches     = 12;    // equally tempered (e.g. 12 equal temp
 #define PIXEL_PIN 6
 Adafruit_NeoPixel pitch_bracelet(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
-/* SafeState stores the secret code in EEPROM */
-SafeState safeState;
-
-// join array elements
-// source: https://gist.github.com/abachman/5257b1700cc77a6ebabdff1aeefb3376
+/* source: https://gist.github.com/abachman/5257b1700cc77a6ebabdff1aeefb3376 */
 String join(uint8_t vals[], char sep, int items) {
   String out = "";
   
@@ -72,15 +64,6 @@ String join(uint8_t vals[], char sep, int items) {
     }
   }
   return out;
-}
-
-void lock() {
-  lockServo.write(SERVO_LOCK_POS);
-  safeState.lock();
-}
-
-void unlock() {
-  lockServo.write(SERVO_UNLOCK_POS);
 }
 
 void showStartupMessage() {
@@ -106,144 +89,6 @@ void showStartupMessage() {
   delay(500);
 }
 
-String inputSecretCode() {
-  lcd.setCursor(5, 1);
-  lcd.print("[____]");
-  lcd.setCursor(6, 1);
-
-  String result = "";
-
-  while (result.length() < 4) {
-    char key = keypad.getKey();
-    if (key >= '0' && key <= '9') {
-      lcd.print('*');
-      result += key;
-    }
-
-  }
-  return result;
-}
-
-void showWaitScreen(int delayMillis) {
-  lcd.setCursor(2, 1);
-  lcd.print("[..........]");
-  lcd.setCursor(3, 1);
-
-  for (byte i = 0; i < 10; i++) {
-    delay(delayMillis);
-    lcd.print("=");
-  }
-}
-
-bool setNewCode() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Enter new code:");
-
-  String newCode = inputSecretCode();
-
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Confirm new code");
-
-  String confirmCode = inputSecretCode();
-
-  if (newCode.equals(confirmCode)) {
-    safeState.setCode(newCode);
-    return true;
-  } else {
-    lcd.clear();
-    lcd.setCursor(1, 0);
-    lcd.print("Code mismatch");
-    lcd.setCursor(0, 1);
-    lcd.print("Safe not locked!");
-
-    delay(2000);
-    return false;
-  }
-}
-
-void showUnlockMessage() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.write(ICON_UNLOCKED_CHAR);
-  lcd.setCursor(4, 0);
-  lcd.print("Unlocked!");
-  lcd.setCursor(15, 0);
-  lcd.write(ICON_UNLOCKED_CHAR);
-
-  delay(1000);
-}
-
-void safeUnlockedLogic() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.write(ICON_UNLOCKED_CHAR);
-  lcd.setCursor(2, 0);
-  lcd.print(" # to lock");
-  lcd.setCursor(15, 0);
-  lcd.write(ICON_UNLOCKED_CHAR);
-
-  bool newCodeNeeded = true;
-
-  if (safeState.hasCode()) {
-    newCodeNeeded = false;
-
-    lcd.setCursor(0, 1);
-    lcd.print("  A = new code");
-
-    newCodeNeeded = false;
-  }
-
-  auto key = keypad.getKey();
-  while (key != 'A' && key != '#') {
-    key = keypad.getKey();
-  }
-
-  bool readyToLock = true;
-  if (key == 'A' || newCodeNeeded) {
-    readyToLock = setNewCode();
-  }
-
-  if (readyToLock) {
-    lcd.clear();
-    lcd.setCursor(5, 0);
-    lcd.write(ICON_UNLOCKED_CHAR);
-    lcd.print(" ");
-    lcd.write(ICON_RIGHT_ARROW);
-    lcd.print(" ");
-    lcd.write(ICON_LOCKED_CHAR);
-
-    safeState.lock();
-    lock();
-    showWaitScreen(100);
-  }
-}
-
-void safeLockedLogic() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.write(ICON_LOCKED_CHAR);
-  lcd.print(" Safe Locked! ");
-  lcd.write(ICON_LOCKED_CHAR);
-
-  String userCode = inputSecretCode();
-  bool unlockedSuccessfully = safeState.unlock(userCode);
-  showWaitScreen(200);
-
-  if (unlockedSuccessfully) {
-    showUnlockMessage();
-    unlock();
-  } else {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Access Denied!");
-
-    showWaitScreen(1000);
-  }
-}
-
-// https://wokwi.com/projects/395427205943873537
 void pitch_bracelet_startup() {
   pitch_bracelet.begin();
   pitch_bracelet.show();
@@ -262,28 +107,14 @@ void setup() {
 
   init_icons(lcd);
 
-  lockServo.attach(SERVO_PIN);
-
-  // for (uint8_t i = 0; i < numTones; i++) {
-  //   pinMode(buttonPins[i], INPUT_PULLUP);
-  // }
   pinMode(SPEAKER_PIN, OUTPUT);
-
-  /* Make sure the physical lock is sync with the EEPROM state */
-  if (safeState.locked()) {
-    lock();
-  } else {
-    unlock();
-  }
-
-  // put your setup code here, to run once:
 
   pitch_bracelet_startup();
   showStartupMessage();
 
 }
 
-// https://github.com/haisamido/maqamat/blob/main/maqamat.py#L62
+/* source: https://github.com/haisamido/maqamat/blob/main/maqamat.py#L62 */ 
 float frequency_from_cents(float f1 , float cents, float cents_per_octave){
   return f1*pow(2,cents/cents_per_octave);
 }
@@ -307,7 +138,7 @@ void loop() {
     Serial.print(pitch_class_step);
     Serial.print("\t");
 
-    // https://github.com/haisamido/maqamat/blob/main/maqamat.py#L62
+    /* source: https://github.com/haisamido/maqamat/blob/main/maqamat.py#L62 */
     frequency = frequency_from_cents(frequency_reference, cents, 1200);
 
     Serial.print(frequency);
@@ -319,10 +150,5 @@ void loop() {
 
   }
 
-  if (safeState.locked()) {
-    safeLockedLogic();
-  } else {
-    safeUnlockedLogic();
-  }
   Serial.println();
 }
