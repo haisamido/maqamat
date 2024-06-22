@@ -5,6 +5,8 @@
 SHELL=bash
 export DIFF_PROGRAM:=vimdiff
 
+PYTHON=$(shell which python3)
+
 TET_INTERVALS =5 7 9 10 12 17 19 22 24 31 34 41 53 60 72 79
 
 TET_INTERVAL  =12
@@ -16,7 +18,17 @@ RATIOS_DIR  =$(RESULTS_DIR)/by_ratios
 directories: 
 	mkdir -p $(ET_DIR) $(RATIOS_DIR)
 
-generate_all: ## generate all equally tempered chromatic scales, and by ratios
+install:
+	sudo apt install -y \
+		python3-numpy \
+		python3-scipy \
+		python3-matplotlib \
+		python3-ipykernel \
+		python3-markdown \
+		python3-pyaudio
+	pip install --break-system-packages -r ./requirements.txt
+
+generate_all: install ## generate all equally tempered chromatic scales, and by ratios
 	@$(MAKE) --silent generate_all_by_ets;
 	@$(MAKE) --silent generate_all_by_ratios
 
