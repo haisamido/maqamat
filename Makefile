@@ -25,8 +25,10 @@ install:
 		python3-matplotlib \
 		python3-ipykernel \
 		python3-markdown \
-		python3-pyaudio
-	pip install --break-system-packages -r ./requirements.txt
+		python3-pyaudio \
+		python3-svgwrite \
+		python3-pip
+	pip install -r ./requirements.txt
 
 generate_all: install ## generate all equally tempered chromatic scales, and by ratios
 	@$(MAKE) --silent generate_all_by_ets;
