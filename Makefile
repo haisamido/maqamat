@@ -29,6 +29,7 @@ install:
 		python3-svgwrite \
 		python3-pip
 	pip install -r ./requirements.txt
+	pip install "numpy<2"
 
 generate_all: install ## generate all equally tempered chromatic scales, and by ratios
 	@$(MAKE) --silent generate_all_by_ets;
