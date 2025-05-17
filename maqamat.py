@@ -31,7 +31,7 @@ parser.add_argument('-r','--ratios',    type=str,  default='[1/1, 253/243, 16/15
 parser.add_argument('-A','--generate-audio', action='store_true', default=False, help='Generate audio per interval')
 parser.add_argument('-v','--volume',        type=float, default=1.75,  help='Audio volume')
 parser.add_argument('-s','--sampling-rate', type=int,   default=44100, help='Audio sampling rate, Hz, must be integer')
-parser.add_argument('-d','--duration',      type=float, default=0.2,   help='Audio duration')
+parser.add_argument('-d','--duration',      type=float, default=1.0,   help='Audio duration')
 
 args = vars(parser.parse_args())
                     
@@ -204,8 +204,13 @@ derived_ratios_str = (', '.join(map(str, derived_ratios)))
 
 print(f"# derived ratios: [{derived_ratios_str}]")
 
+
+np.set_printoptions(precision=3,floatmode='fixed')
+print(np.array(scale_by_cents))
+
 scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
-#print(scale_by_cents_str)
+
+print(f"# derived  cents: [{scale_by_cents_str}]")
 
 print(f"# derived  cents: sha256:{scale_hash_value}")
 print("#-------------------------------------------------------------------------------------------------")

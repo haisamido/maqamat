@@ -66,6 +66,9 @@ generate_umrawi: ## generate intervals with Umrawi ratios
 	echo "Generating intervals with Umrawi ratios" >&2
 	@${PYTHON} ./maqamat.py -A -R -r $(umrawi)
 
+generate_bracelet_diagram: ## generate bracelet diagram
+	@${PYTHON} ./bracelet_diagram.py
+
 print-%: ## print a variable and its value, e.g. print the value of variable PROVIDER: make print-PROVIDER
 	@echo $* = $($*)
 

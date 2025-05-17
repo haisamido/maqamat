@@ -5,3 +5,4 @@ wave
 ipykernel
 markdown
 pyaudio
+svgwrite
