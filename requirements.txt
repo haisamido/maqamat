@@ -1,7 +1,7 @@
-# numpy
-# scipy
-# matplotlib
+numpy
+scipy
+matplotlib
 wave
-# ipykernel
-# markdown
-#pyaudio
+ipykernel
+markdown
+pyaudio
