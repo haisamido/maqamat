@@ -12,6 +12,7 @@ import time
 import sys
 
 import pyaudio
+import svgwrite
 
 from fractions import Fraction
 from hashlib import sha256
@@ -19,8 +20,8 @@ from hashlib import sha256
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
 parser.add_argument('-f1','--f1', type=float, default=440, help='foo help')
-parser.add_argument('-c','--cents-per-octave',  type=float, default=1200, help='cents per octave')
-parser.add_argument('-o','--number-of-octaves', type=float, default=1, help='number of octaves')
+parser.add_argument('-c','--cents-per-octave', type=float, default=1200, help='cents per octave')
+parser.add_argument('-o','--output-file', type=str, default='bracelet.svg', help='output name for svg file')
 
 parser.add_argument('-E','--by-et',     action='store_true', default=True, help='by equal temparement')
 parser.add_argument('-i','--intervals', type=float, default=12,  help='Number of equally tempered intervals')
@@ -31,14 +32,35 @@ parser.add_argument('-r','--ratios',    type=str,  default='[1/1, 253/243, 16/15
 parser.add_argument('-A','--generate-audio', action='store_true', default=False, help='Generate audio per interval')
 parser.add_argument('-v','--volume',        type=float, default=1.75,  help='Audio volume')
 parser.add_argument('-s','--sampling-rate', type=int,   default=44100, help='Audio sampling rate, Hz, must be integer')
-parser.add_argument('-d','--duration',      type=float, default=1.0,   help='Audio duration')
+parser.add_argument('-d','--duration',      type=float, default=.1,   help='Audio duration')
+
+# SVG Canvas arguments for the bracelet diagram
+parser.add_argument('-w','--canvas_width',  type=float, default=600,   help='Canvas Width')
+parser.add_argument('-H','--canvas_height', type=float, default=600,   help='Canvas Height')
 
 args = vars(parser.parse_args())
-                    
+
+# Provided                    
 f0                = args['f0']
 f1                = args['f1']
 cents_per_octave  = args['cents_per_octave']
-number_of_octaves = args['number_of_octaves']
+#number_of_octaves = args['number_of_octaves']
+
+canvas_width      = args['canvas_width']
+canvas_height     = args['canvas_height']
+output_file       = args['output_file']
+
+r_note            =15  # note radius
+r_bracelet        =200 # radius of bracelet
+
+# Derived
+radians_per_cent   = (2*math.pi)/cents_per_octave
+degrees_per_radian = 360.0/(2*math.pi)
+
+# Canvas
+cx    = canvas_width/2
+cy    = canvas_height/2
+cents = np.array([])
 
 # Audio section
 generate_audio  = args['generate_audio']
@@ -77,9 +99,6 @@ def derive_scale_by_ratios():
 # {0,1,3,5,6,7,9,11}
 
 # (101011101011)₂ = (1 × 2¹¹) + (0 × 2¹⁰) + (1 × 2⁹) + (0 × 2⁸) + (1 × 2⁷) + (1 × 2⁶) + (1 × 2⁵) + (0 × 2⁴) + (1 × 2³) + (0 × 2²) + (1 × 2¹) + (1 × 2⁰) = (2795)₁₀
-
-radians_per_cent   = (2*math.pi)/cents_per_octave
-degrees_per_radian = 360.0/(2*math.pi)
 
 def get_arcs_per_cents(scale_by_cents,cents_per_octave):
     
@@ -121,6 +140,119 @@ def generate_frequency(f):
     stream.close()
     p.terminate()
 
+# Canvas functions
+#cents_per_octave = 1200
+
+#output_file   ="bracelet.svg"
+canvas_width  =600
+canvas_height =600
+
+r_note     =15  # note radius
+
+r_bracelet =200 # radius of bracelet
+cx = canvas_width/2
+cy = canvas_height/2
+stroke='red'
+stroke_width=0.75
+
+cents = np.array([0.0, 90.22499567306306, 180.44999134612573, 203.91000173077484, 294.13499740383764, 384.35999307690065, 407.8200034615497, 498.0449991346125, 588.2699948076754, 678.4949904807384, 701.9550008653874, 792.1799965384502, 882.4049922115132, 905.8650025961623, 996.089998269225, 1086.314993942288, 1176.539989615351, 1200.0])
+
+def create_canvas(output_file=output_file, canvas_width=600, canvas_height=600):
+    return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
+    
+def add_bracelet_circle(obj='dwg', radius=r_bracelet, cx=canvas_width/2, cy=canvas_height/2, fill=svgwrite.rgb(140, 171, 255), stroke='white', stroke_width=.5):
+    
+    obj.add(
+        obj.circle( 
+            center=(cx,cy), 
+            r=radius, 
+            fill=fill,
+            stroke=stroke, 
+            stroke_width=stroke_width,
+            id='bracelet'
+        )
+    )
+
+def add_notes(obj='dwg', cents=cents, radius=r_bracelet, stroke='red', stroke_width=.75, cx=canvas_width/2, cy=canvas_height/2):
+    
+    theta =-1*math.pi/2
+    i=0
+    for cent in cents:
+        step=(2*math.pi)*(cent/cents_per_octave)
+        
+        x = radius * math.cos(step) + cx
+        y = radius * math.sin(step) + cy
+        
+        # https://math.stackexchange.com/a/814981
+        𝑥rot=(math.cos(theta)*(x-cx) - math.sin(theta)*(y-cy) + cx)
+        yrot=(math.sin(theta)*(x-cx) - math.cos(theta)*(y-cy) + cy)
+        
+        #print(i,cent,' x,y ---> ',x,y,' xrot, yrot ---> ',xrot,yrot)
+        
+        x=xrot
+        y=yrot
+        
+        obj.add(
+            obj.circle(
+                center=(x,y),
+                r=r_note,
+                fill=svgwrite.rgb(0, 255, 0, '%'), 
+                stroke=stroke, 
+                stroke_width=stroke_width,
+                id=cent
+            )
+        )
+
+        obj.add(
+            obj.line(
+                (cx, cy), 
+                (x, y), 
+                stroke=svgwrite.rgb(10, 10, 16, '%'), 
+                stroke_width='.2'
+            )
+        )
+    
+        i = i + 1
+    
+def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='red', stroke_width=0.2):
+    
+    theta =-1*math.pi/2
+    
+    cents = []
+    for i in range(0,cents_per_octave,interval):
+        cents = np.append(cents, i)
+    
+    for cent in cents:
+        step=(2*math.pi)*(cent/cents_per_octave)
+        
+        x = radius * math.cos(step) + cx
+        y = radius * math.sin(step) + cy
+        
+        # dx0 = radius/0.975 * math.cos(step) + cx
+        # dy0 = radius/0.975 * math.sin(step) + cy
+        
+        # dxf=x-dx0
+        # dyf=y-dy0
+        
+        # https://math.stackexchange.com/a/814981
+        𝑥rot=(math.cos(theta)*(x-cx) - math.sin(theta)*(y-cy) + cx)
+        yrot=(math.sin(theta)*(x-cx) - math.cos(theta)*(y-cy) + cy)
+        
+        x=xrot
+        y=yrot
+        
+        obj.add(
+            obj.line(
+                (cx, cy), 
+                (x, y), 
+                stroke=stroke, 
+                stroke_width=stroke_width,
+                id='tic_marks'
+            )
+        )
+    
+        i = i + 1
+
 # By Equal Tempermant
 if args['by_et'] is True:
     number_of_intervals  = args['intervals']
@@ -152,8 +284,6 @@ frequency_ratios = scale_in_frequencies/f1
 delta_cents  = np.diff(scale_by_cents)
 delta_cents  = np.append(0, delta_cents)
 
-#print(f"## {description}\n")
-#print('```bash')
 print()
 print("#-------------------------------------------------------------------------------------------------")
 print(f"# {description}")
@@ -204,9 +334,8 @@ derived_ratios_str = (', '.join(map(str, derived_ratios)))
 
 print(f"# derived ratios: [{derived_ratios_str}]")
 
-
 np.set_printoptions(precision=3,floatmode='fixed')
-print(np.array(scale_by_cents))
+#print(np.array(scale_by_cents))
 
 scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
 
@@ -215,4 +344,16 @@ print(f"# derived  cents: [{scale_by_cents_str}]")
 print(f"# derived  cents: sha256:{scale_hash_value}")
 print("#-------------------------------------------------------------------------------------------------")
 
-#print('```')
+# Canvas section
+dwg=create_canvas(output_file=output_file, canvas_width=canvas_width, canvas_height=canvas_height)
+
+add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
+add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
+
+add_cent_tic_marks(dwg, stroke='blue',  radius=1.025*r_bracelet, interval=2)
+add_cent_tic_marks(dwg, stroke='red',   radius=1.05*r_bracelet,  interval=6)
+add_cent_tic_marks(dwg, stroke='green', stroke_width=.75, radius=1.075*r_bracelet,  interval=50)
+
+add_notes(dwg, cents=scale_by_cents, radius=r_bracelet, stroke='red', stroke_width=.75, cx=cx, cy=cy)
+
+dwg.save()

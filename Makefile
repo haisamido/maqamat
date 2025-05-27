@@ -33,7 +33,7 @@ generate_all: install ## generate all equally tempered chromatic scales, and by 
 
 generate_all_by_ets: directories ## generate all defined equally tempered chromatic scales
 	@$(foreach TET_INTERVAL, $(TET_INTERVALS), \
-		$(MAKE) --silent generate_by_et TET_INTERVAL=$(TET_INTERVAL) > $(ET_DIR)/equal_temperament_$(TET_INTERVAL).tsv;)
+	$(MAKE) --silent generate_by_et TET_INTERVAL=$(TET_INTERVAL) > $(ET_DIR)/equal_temperament_$(TET_INTERVAL).tsv;)
 
 generate_all_by_ratios: directories
 	@$(MAKE) --silent generate_by_ratios > $(RATIOS_DIR)/just_intervals.tsv;
@@ -43,7 +43,7 @@ generate_all_by_ratios: directories
 
 generate_by_et: ## generate chromatic scale of TET_INTERVAL, e.g. make generate TET_INTERVAL=24
 	echo "Generating TET with $(TET_INTERVAL) intervals" >&2
-	@${PYTHON} ./maqamat.py -E -i $(TET_INTERVAL)
+	@${PYTHON} ./maqamat.py -E -i $(TET_INTERVAL) -o $(ET_DIR)/equal_temperament_$(TET_INTERVAL).svg
 
 just_intervals        ='[1,   16/15, 10/9,   6/5,   5/4, 4/3,   45/32,    64/45, 3/2,    8/5,   5/3,  9/5,    15/8, 2]'
 pythagorean_intervals ='[1, 256/243,  9/8, 32/27, 81/64, 4/3, 729/512, 1024/729, 3/2, 128/81, 27/16, 16/9, 243/128, 2]'
