@@ -52,19 +52,19 @@ umrawi                ='[1, 256/243, 65536/59049, 9/8, 32/27, 8192/6561, 81/64, 
 
 generate_by_ratios: ## generate intervals with Just intonation ratios
 	echo "Generating intervals with Just Intonation ratios" >&2
-	@${PYTHON} ./maqamat.py -A -R -r $(just_intervals)
+	@${PYTHON} ./maqamat.py -R -r $(just_intervals) -o $(RATIOS_DIR)/just_intervals.svg
 
 generate_by_ratios2: ## generate intervals with Pythagorean ratios
 	echo "Generating intervals with Pythagorean ratios" >&2
-	@${PYTHON} ./maqamat.py -R -r $(pythagorean_intervals)
+	@${PYTHON} ./maqamat.py -R -r $(pythagorean_intervals) -o $(RATIOS_DIR)/pythagorean_intervals.svg
 
 generate_by_ratios3: ## generate intervals with Pythagorean ratios in Turkish Music
 	echo "Generating intervals with Pythagorean ratios in Turkish Music" >&2
-	@${PYTHON} ./maqamat.py -R -r $(pythagorean_intervals_in_turkish_music)
+	@${PYTHON} ./maqamat.py -R -r $(pythagorean_intervals_in_turkish_music) -o $(RATIOS_DIR)/pythagorean_intervals_turkish.svg 
 
 generate_umrawi: ## generate intervals with Umrawi ratios
 	echo "Generating intervals with Umrawi ratios" >&2
-	@${PYTHON} ./maqamat.py -A -R -r $(umrawi)
+	@${PYTHON} ./maqamat.py -R -r $(umrawi) -o $(RATIOS_DIR)/umrawi.svg 
 
 generate_bracelet_diagram: ## generate bracelet diagram
 	@${PYTHON} ./bracelet_diagram.py
