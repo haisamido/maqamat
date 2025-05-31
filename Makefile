@@ -27,6 +27,9 @@ setup-python: directories ## Setup LOCAL Python test environment
 install: directories setup-python
 	@${PYTHON} -m pip install -r ./requirements.txt
 
+all: ## generate all equally tempered chromatic scales, and by ratios
+	$(MAKE) generate_all
+
 generate_all: install ## generate all equally tempered chromatic scales, and by ratios
 	@$(MAKE) --silent generate_all_by_ets;
 	@$(MAKE) --silent generate_all_by_ratios
