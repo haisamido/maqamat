@@ -68,6 +68,23 @@ volume          = args['volume']
 sampling_rate   = args['sampling_rate']
 duration        = args['duration']
 
+# Canvas functions
+#cents_per_octave = 1200
+
+#output_file   ="bracelet.svg"
+canvas_width  =600
+canvas_height =600
+
+r_note     =15  # note radius
+
+r_bracelet =200 # radius of bracelet
+cx = canvas_width/2
+cy = canvas_height/2
+stroke='red'
+stroke_width=0.75
+
+cents = np.array([])
+
 def nth_root_of_2(n):
     return (2)**(1/n)
 
@@ -140,22 +157,7 @@ def generate_frequency(f):
     stream.close()
     p.terminate()
 
-# Canvas functions
-#cents_per_octave = 1200
 
-#output_file   ="bracelet.svg"
-canvas_width  =600
-canvas_height =600
-
-r_note     =15  # note radius
-
-r_bracelet =200 # radius of bracelet
-cx = canvas_width/2
-cy = canvas_height/2
-stroke='red'
-stroke_width=0.75
-
-cents = np.array([0.0, 90.22499567306306, 180.44999134612573, 203.91000173077484, 294.13499740383764, 384.35999307690065, 407.8200034615497, 498.0449991346125, 588.2699948076754, 678.4949904807384, 701.9550008653874, 792.1799965384502, 882.4049922115132, 905.8650025961623, 996.089998269225, 1086.314993942288, 1176.539989615351, 1200.0])
 
 def create_canvas(output_file=output_file, canvas_width=600, canvas_height=600):
     return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
