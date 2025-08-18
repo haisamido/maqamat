@@ -17,6 +17,7 @@ RESULTS_DIR =./results
 ET_DIR      =$(RESULTS_DIR)/by_equal_temperament
 RATIOS_DIR  =$(RESULTS_DIR)/by_ratios
 
+# AUDIO=-A will generate audio
 AUDIO=
 
 directories: 

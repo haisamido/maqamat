@@ -6,3 +6,5 @@ ipykernel
 markdown
 pyaudio
 svgwrite
+
+pyyaml

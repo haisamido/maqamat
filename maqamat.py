@@ -14,8 +14,20 @@ import sys
 import pyaudio
 import svgwrite
 
+import yaml
+
 from fractions import Fraction
 from hashlib import sha256
+
+maqamat_temp = yaml.safe_load(open('maqamat.yml'))
+maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
+
+intervals=maqamat['umrawi']['intervals']
+
+print(intervals)
+
+for maqam in maqamat:
+    print(maqam)
 
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
@@ -23,7 +35,7 @@ parser.add_argument('-f1','--f1', type=float, default=440, help='foo help')
 parser.add_argument('-c','--cents-per-octave', type=float, default=1200, help='cents per octave')
 parser.add_argument('-o','--output-file', type=str, default='bracelet.svg', help='output name for svg file')
 
-parser.add_argument('-E','--by-et',     action='store_true', default=True, help='by equal temparement')
+parser.add_argument('-E','--by-et',     action='store_true', default=True, help='by equal temperament')
 parser.add_argument('-i','--intervals', type=float, default=12,  help='Number of equally tempered intervals')
 
 parser.add_argument('-R','--by-ratios', action='store_true', default=False, help='providing scale by ratios')
@@ -157,8 +169,6 @@ def generate_frequency(f):
     stream.close()
     p.terminate()
 
-
-
 def create_canvas(output_file=output_file, canvas_width=600, canvas_height=600):
     return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
     
@@ -269,7 +279,12 @@ if args['by_et'] is True:
 # By Ratios
 if args['by_ratios'] is True:
     ratios               = re.sub("\s*,\s*", ",", args['ratios'])
-    scale_by_ratios      = np.array(eval(ratios))
+
+    intervals_str =','.join(map(str,intervals))
+    intervals2    = f"[{intervals_str}]"
+    
+    scale_by_ratios  = np.array(eval(intervals2))
+    print('scale by rations:  ', scale_by_ratios)
     
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
@@ -321,7 +336,8 @@ for i, cent in enumerate(scale_by_cents):
 print("#-------------------------------------------------------------------------------------------------")
 
 if args['by_ratios'] is True:
-    given_ratios_str   = re.sub(",", ", ", ratios)
+#    given_ratios_str   = re.sub(",", ", ", ratios)
+    given_ratios_str = intervals_str
     given_ratios_str   = re.sub("\[|\]", "", given_ratios_str)
     print(f"# given   ratios: [{given_ratios_str}]")
 
