@@ -278,7 +278,7 @@ if args['by_et'] is True:
 
 # By Ratios
 if args['by_ratios'] is True:
-    ratios               = re.sub("\s*,\s*", ",", args['ratios'])
+    ratios               = re.sub(r"\s*,\s*", ",", args['ratios'])
 
     intervals_str =','.join(map(str,intervals))
     intervals2    = f"[{intervals_str}]"
@@ -338,7 +338,7 @@ print("#------------------------------------------------------------------------
 if args['by_ratios'] is True:
 #    given_ratios_str   = re.sub(",", ", ", ratios)
     given_ratios_str = intervals_str
-    given_ratios_str   = re.sub("\[|\]", "", given_ratios_str)
+    given_ratios_str   = re.sub(r"\[|\]", "", given_ratios_str)
     print(f"# given   ratios: [{given_ratios_str}]")
 
     # m = hashlib.sha256(given_ratios_str.encode('UTF-8'))
