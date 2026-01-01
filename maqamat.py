@@ -22,7 +22,7 @@ from hashlib import sha256
 maqamat_temp = yaml.safe_load(open('maqamat.yml'))
 maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
 
-intervals=maqamat['umrawi']['intervals']
+intervals=maqamat['urmawi']['intervals']
 
 print(intervals)
 
