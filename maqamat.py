@@ -22,7 +22,7 @@ from hashlib import sha256
 maqamat_temp = yaml.safe_load(open('maqamat.yml'))
 maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
 
-intervals=maqamat['urmawi']['intervals']
+#intervals=maqamat['urmawi']['intervals']
 
 # print(intervals)
 
@@ -265,7 +265,7 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
     
         i = i + 1
 
-# By Equal Tempermant
+# By Equal Temperament
 if args['by_et'] is True:
     number_of_intervals  = args['intervals']
     cents_per_interval   = cents_per_octave/number_of_intervals
@@ -279,12 +279,14 @@ if args['by_et'] is True:
 # By Ratios
 if args['by_ratios'] is True:
     ratios               = re.sub(r"\s*,\s*", ",", args['ratios'])
-
-    intervals_str =','.join(map(str,intervals))
-    intervals2    = f"[{intervals_str}]"
+    scale_by_ratios      = np.array(eval(ratios))
     
-    scale_by_ratios  = np.array(eval(intervals2))
-    print('scale by rations:  ', scale_by_ratios)
+    # intervals=ratios
+    # intervals_str =','.join(map(str,intervals))
+    # intervals2    = f"[{intervals_str}]"
+    
+    # scale_by_ratios  = np.array(eval(intervals2))
+#    print('scale by rations:  ', scale_by_ratios)
     
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
@@ -333,6 +335,8 @@ for i, cent in enumerate(scale_by_cents):
     if generate_audio is True:
         generate_frequency(f)
 
+output_frequencies = [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
+
 print("#-------------------------------------------------------------------------------------------------")
 
 # TODO: create SCL (scala file) output
@@ -353,15 +357,15 @@ print("#------------------------------------------------------------------------
 #     # relative error
 #     rerror    = 100*(aerror)/f_ratio
 
-#     print("%8.6f" %(cent,))
-# #          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
+#    print("%8.6f" %(cent,))
+#          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
     
 #     if generate_audio is True:
 #         generate_frequency(f)
         
 if args['by_ratios'] is True:
-#    given_ratios_str   = re.sub(",", ", ", ratios)
-    given_ratios_str = intervals_str
+    given_ratios_str   = re.sub(",", ", ", ratios)
+#    given_ratios_str = intervals_str
     given_ratios_str   = re.sub(r"\[|\]", "", given_ratios_str)
     print(f"# given   ratios: [{given_ratios_str}]")
 
