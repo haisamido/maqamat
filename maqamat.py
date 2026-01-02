@@ -24,10 +24,10 @@ maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
 
 intervals=maqamat['urmawi']['intervals']
 
-print(intervals)
+# print(intervals)
 
-for maqam in maqamat:
-    print(maqam)
+# for maqam in maqamat:
+#     print(maqam)
 
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
@@ -335,6 +335,30 @@ for i, cent in enumerate(scale_by_cents):
 
 print("#-------------------------------------------------------------------------------------------------")
 
+# TODO: create SCL (scala file) output
+# for i, cent in enumerate(scale_by_cents):
+#     f       = scale_in_frequencies[i]
+#     f_ratio = frequency_ratios[i]
+
+#     fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
+#     derived_ratios = np.append(derived_ratios, f"{fraction}")
+    
+#     fraction_float = float(fraction)
+#     fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
+    
+#     arc_per_delta_cent = delta_cents[i] * radians_per_cent
+
+#     # absolute error
+#     aerror    = f_ratio - float(fraction)
+#     # relative error
+#     rerror    = 100*(aerror)/f_ratio
+
+#     print("%8.6f" %(cent,))
+# #          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
+    
+#     if generate_audio is True:
+#         generate_frequency(f)
+        
 if args['by_ratios'] is True:
 #    given_ratios_str   = re.sub(",", ", ", ratios)
     given_ratios_str = intervals_str
