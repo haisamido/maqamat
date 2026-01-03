@@ -255,26 +255,17 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
     
         i = i + 1
 
-frequencies_to_output = maqamat['metadata']['frequencies_to_output']
-    
+frequencies_to_output = np.array(maqamat['metadata']['frequencies_to_output'])
+
 for maqam in (maqamat['maqamat']):
     
     intervals = maqamat['maqamat'][maqam]['intervals']
     by        = maqamat['maqamat'][maqam]['metadata']['by']
     
-    print(frequencies_to_output)
-    
     intervals_str = ','.join(map(str,intervals))
     intervals_str = f"[{intervals_str}]"
     
-    scale_by_ratios  = np.array(eval(intervals_str))
-    
-    for f_root in frequencies_to_output:
-        
-        f_new=frequency_from_ratio(f_root, scale_by_ratios)
-        print(f"# Generating for f_root = {f_new} Hz")
-        
-    #scale_in_frequencies_dict = {}
+    scale_by_ratios = np.array(eval(intervals_str))
     
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
 
@@ -321,7 +312,14 @@ for maqam in (maqamat['maqamat']):
         # relative error
         rerror    = 100*(aerror)/f_ratio
 
-        print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f))
+        np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
+
+        freqs=(2**(cent/cents_per_octave))*frequencies_to_output
+        
+
+        z = np.array2string(freqs, separator=' | ', formatter={'float': lambda x: f"{x:-8.3f}"})[1:-1]
+            
+        print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f | %s" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f,z))
         
         if generate_audio is True:
             generate_frequency(f)

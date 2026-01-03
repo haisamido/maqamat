@@ -2,24 +2,10 @@
 # cat ./maqamat.yml | yq '.maqamat[].name'
 
 metadata:
+  f0: 440.0
+  cents_per_octave: 1200.0
   frequencies_to_output:
     [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
-
-bibliography:
-  mikosch2022:
-    author: "Mikosch, Thomas"
-    title: "Oriental Jazz Improvisation - Microtonality and Harmony"
-    subtitle: ""
-    publisher: "Tredition Gmbh"
-    year: 2022
-    month: "December"
-    isbn13: "9783347742055"
-    isbn10: "3347742052"
-    pages: 132
-    format: "Paperback"
-    dimensions: "11.69 x 8.27 x 0.28 inches"
-    description: ""
-    comment: "self published via tredition"
 
 maqamat:
   urmawi:
@@ -88,3 +74,19 @@ maqamat:
     name: indian-ratios
     intervals: 
       [ 1/1, 256/243, 16/15, 10/9, 9/8, 32/27, 6/5, 5/4, 81/64, 4/3, 27/20, 45/32, 729/512, 3/2, 128/81, 8/5, 5/3, 27/16, 16/9, 9/5, 15/8, 243/128, 2/1]
+
+bibliography:
+  mikosch2022:
+    author: "Mikosch, Thomas"
+    title: "Oriental Jazz Improvisation - Microtonality and Harmony"
+    subtitle: ""
+    publisher: "Tredition Gmbh"
+    year: 2022
+    month: "December"
+    isbn13: "9783347742055"
+    isbn10: "3347742052"
+    pages: 132
+    format: "Paperback"
+    dimensions: "11.69 x 8.27 x 0.28 inches"
+    description: ""
+    comment: "self published via tredition"
