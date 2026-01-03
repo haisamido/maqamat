@@ -26,8 +26,6 @@ maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
 
 # print(intervals)
 
-# for maqam in maqamat:
-#     print(maqam)
 
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
@@ -124,10 +122,6 @@ def generate_scale_by_et():
 
 def derive_scale_by_ratios():
     return 0    
-
-# {0,1,3,5,6,7,9,11}
-
-# (101011101011)₂ = (1 × 2¹¹) + (0 × 2¹⁰) + (1 × 2⁹) + (0 × 2⁸) + (1 × 2⁷) + (1 × 2⁶) + (1 × 2⁵) + (0 × 2⁴) + (1 × 2³) + (0 × 2²) + (1 × 2¹) + (1 × 2⁰) = (2795)₁₀
 
 def get_arcs_per_cents(scale_by_cents,cents_per_octave):
     
@@ -265,141 +259,164 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
     
         i = i + 1
 
-# By Equal Temperament
-if args['by_et'] is True:
-    number_of_intervals  = args['intervals']
-    cents_per_interval   = cents_per_octave/number_of_intervals
+for maqam in sorted(maqamat):
     
-    scale_by_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
-    scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
-    number_of_intervals  = scale_by_cents.size
-    limit_denominator    = number_of_intervals-1
-    description          = f"Type=equal temperament intervals, Number of intervals={number_of_intervals-1}, keywords=TET,ET,EDO"
-
-# By Ratios
-if args['by_ratios'] is True:
-    ratios               = re.sub(r"\s*,\s*", ",", args['ratios'])
-    scale_by_ratios      = np.array(eval(ratios))
+    intervals = maqamat[maqam]['intervals']
+    by        = maqamat[maqam]['metadata']['by']
     
-    # intervals=ratios
-    # intervals_str =','.join(map(str,intervals))
-    # intervals2    = f"[{intervals_str}]"
+    intervals_str = ','.join(map(str,intervals))
+    intervals_str = f"[{intervals_str}]"
     
-    # scale_by_ratios  = np.array(eval(intervals2))
-#    print('scale by rations:  ', scale_by_ratios)
+#    ratios               = re.sub(r"\s*,\s*", ",", intervals)
+    scale_by_ratios  = np.array(eval(intervals_str))
+#    print(scale_by_ratios)
+#    scale_by_ratios = np.array((intervals))
+#    print(scale_by_ratios)
     
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     number_of_intervals  = scale_by_cents.size
-    limit_denominator    = number_of_intervals**5
-    description          = f"Type=intervals by ratios, Number of intervals={number_of_intervals-1}, keywords=ratios,just,pythogrean"
+    limit_denominator    = (number_of_intervals-5)**5
+    description          = f"maqam ={maqam}, type={by}"
 
-scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
 
-arcs_per_cents = get_arcs_per_cents(scale_by_cents,cents_per_octave)
+# exit(0)
 
-frequency_ratios = scale_in_frequencies/f1
-
-delta_cents  = np.diff(scale_by_cents)
-delta_cents  = np.append(0, delta_cents)
-
-print()
-print("#-------------------------------------------------------------------------------------------------")
-print(f"# {description}")
-print("#-------------------------------------------------------------------------------------------------")
-print("%-4s %8s %8s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","aerror","rerror","f (Hz)"))
-print("#-------------------------------------------------------------------------------------------------")
-
-derived_ratios =np.array([])
-
-for i, cent in enumerate(scale_by_cents):
-    f       = scale_in_frequencies[i]
-    f_ratio = frequency_ratios[i]
-
-    fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
-    derived_ratios = np.append(derived_ratios, f"{fraction}")
-    
-    fraction_float = float(fraction)
-    fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
-    
-    arc_per_delta_cent = delta_cents[i] * radians_per_cent
-
-    # absolute error
-    aerror    = f_ratio - float(fraction)
-    # relative error
-    rerror    = 100*(aerror)/f_ratio
-
-    print("%-4s %8.3f %8.3f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f))
-#          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
-    
-    if generate_audio is True:
-        generate_frequency(f)
-
-output_frequencies = [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
-
-print("#-------------------------------------------------------------------------------------------------")
-
-# TODO: create SCL (scala file) output
-# for i, cent in enumerate(scale_by_cents):
-#     f       = scale_in_frequencies[i]
-#     f_ratio = frequency_ratios[i]
-
-#     fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
-#     derived_ratios = np.append(derived_ratios, f"{fraction}")
-    
-#     fraction_float = float(fraction)
-#     fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
-    
-#     arc_per_delta_cent = delta_cents[i] * radians_per_cent
-
-#     # absolute error
-#     aerror    = f_ratio - float(fraction)
-#     # relative error
-#     rerror    = 100*(aerror)/f_ratio
-
-#    print("%8.6f" %(cent,))
-#          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
-    
-#     if generate_audio is True:
-#         generate_frequency(f)
+    # By Equal Temperament
+    # if args['by_et'] is True:
+    #     number_of_intervals  = args['intervals']
+    #     cents_per_interval   = cents_per_octave/number_of_intervals
         
-if args['by_ratios'] is True:
-    given_ratios_str   = re.sub(",", ", ", ratios)
-#    given_ratios_str = intervals_str
-    given_ratios_str   = re.sub(r"\[|\]", "", given_ratios_str)
-    print(f"# given   ratios: [{given_ratios_str}]")
+    #     scale_by_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
+    #     scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
+    #     number_of_intervals  = scale_by_cents.size
+    #     limit_denominator    = number_of_intervals-1
+    #     description          = f"Type=equal temperament intervals, Number of intervals={number_of_intervals-1}, keywords=TET,ET,EDO"
 
-    # m = hashlib.sha256(given_ratios_str.encode('UTF-8'))
+    # # By Ratios
+    # if args['by_ratios'] is True:
+    #     ratios               = re.sub(r"\s*,\s*", ",", args['ratios'])
+    #     scale_by_ratios      = np.array(eval(ratios))
+        
+    #     # intervals=ratios
+    #     # intervals_str =','.join(map(str,intervals))
+    #     # intervals2    = f"[{intervals_str}]"
+        
+    #     # scale_by_ratios  = np.array(eval(intervals2))
+    # #    print('scale by rations:  ', scale_by_ratios)
+        
+    #     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
+    #     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
+    #     number_of_intervals  = scale_by_cents.size
+    #     limit_denominator    = number_of_intervals**5
+    #     description          = f"Type=intervals by ratios, Number of intervals={number_of_intervals-1}, keywords=ratios,just,pythogrean"
+
+    scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
+
+    arcs_per_cents = get_arcs_per_cents(scale_by_cents,cents_per_octave)
+
+    frequency_ratios = scale_in_frequencies/f1
+
+    delta_cents  = np.diff(scale_by_cents)
+    delta_cents  = np.append(0, delta_cents)
+
+    print()
+    print("#-------------------------------------------------------------------------------------------------")
+    print(f"# {description}")
+    print("#-------------------------------------------------------------------------------------------------")
+    print("%-4s %11s %11s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","abs error","rel error","f (Hz)"))
+    print("#-------------------------------------------------------------------------------------------------")
+
+    derived_ratios =np.array([])
+
+    for i, cent in enumerate(scale_by_cents):
+        f       = scale_in_frequencies[i]
+        f_ratio = frequency_ratios[i]
+
+        fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
+        derived_ratios = np.append(derived_ratios, f"{fraction}")
+        
+        fraction_float = float(fraction)
+        fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
+        
+        arc_per_delta_cent = delta_cents[i] * radians_per_cent
+
+        # absolute error
+        aerror    = f_ratio - float(fraction)
+        # relative error
+        rerror    = 100*(aerror)/f_ratio
+
+        print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f))
+    #          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
+        
+        if generate_audio is True:
+            generate_frequency(f)
+
+    output_frequencies = [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
+
+    print("#-------------------------------------------------------------------------------------------------")
+
+    # TODO: create SCL (scala file) output
+    # for i, cent in enumerate(scale_by_cents):
+    #     f       = scale_in_frequencies[i]
+    #     f_ratio = frequency_ratios[i]
+
+    #     fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
+    #     derived_ratios = np.append(derived_ratios, f"{fraction}")
+        
+    #     fraction_float = float(fraction)
+    #     fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
+        
+    #     arc_per_delta_cent = delta_cents[i] * radians_per_cent
+
+    #     # absolute error
+    #     aerror    = f_ratio - float(fraction)
+    #     # relative error
+    #     rerror    = 100*(aerror)/f_ratio
+
+    #    print("%8.6f" %(cent,))
+    #          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
+        
+    #     if generate_audio is True:
+    #         generate_frequency(f)
+            
+    # if args['by_ratios'] is True:
+    #     given_ratios_str   = re.sub(",", ", ", ratios)
+    # #    given_ratios_str = intervals_str
+    #     given_ratios_str   = re.sub(r"\[|\]", "", given_ratios_str)
+    #     print(f"# given   ratios: [{given_ratios_str}]")
+
+        # m = hashlib.sha256(given_ratios_str.encode('UTF-8'))
+        # print(m.hexdigest())
+
+    derived_ratios_str = (', '.join(map(str, derived_ratios)))
+    #print(sha256(derived_ratios_str).hexdigest())
+
+    # m = hashlib.sha256(derived_ratios_str.encode('UTF-8'))
     # print(m.hexdigest())
 
-derived_ratios_str = (', '.join(map(str, derived_ratios)))
-#print(sha256(derived_ratios_str).hexdigest())
+    print(f"# derived ratios: [{derived_ratios_str}]")
 
-# m = hashlib.sha256(derived_ratios_str.encode('UTF-8'))
-# print(m.hexdigest())
+    np.set_printoptions(precision=3,floatmode='fixed')
+    #print(np.array(scale_by_cents))
 
-print(f"# derived ratios: [{derived_ratios_str}]")
+    scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
 
-np.set_printoptions(precision=3,floatmode='fixed')
-#print(np.array(scale_by_cents))
+    print(f"# derived  cents: [{scale_by_cents_str}]")
 
-scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
+    print(f"# derived  cents: sha256:{scale_hash_value}")
+    print("#-------------------------------------------------------------------------------------------------")
 
-print(f"# derived  cents: [{scale_by_cents_str}]")
+    # Canvas section
+    dwg=create_canvas(output_file=output_file, canvas_width=canvas_width, canvas_height=canvas_height)
 
-print(f"# derived  cents: sha256:{scale_hash_value}")
-print("#-------------------------------------------------------------------------------------------------")
+    add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
+    add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
 
-# Canvas section
-dwg=create_canvas(output_file=output_file, canvas_width=canvas_width, canvas_height=canvas_height)
+    add_cent_tic_marks(dwg, stroke='blue',  radius=1.025*r_bracelet, interval=2)
+    add_cent_tic_marks(dwg, stroke='red',   radius=1.05*r_bracelet,  interval=6)
+    add_cent_tic_marks(dwg, stroke='green', stroke_width=.75, radius=1.075*r_bracelet,  interval=50)
 
-add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
-add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
+    add_notes(dwg, cents=scale_by_cents, radius=r_bracelet, stroke='red', stroke_width=.75, cx=cx, cy=cy)
 
-add_cent_tic_marks(dwg, stroke='blue',  radius=1.025*r_bracelet, interval=2)
-add_cent_tic_marks(dwg, stroke='red',   radius=1.05*r_bracelet,  interval=6)
-add_cent_tic_marks(dwg, stroke='green', stroke_width=.75, radius=1.075*r_bracelet,  interval=50)
-
-add_notes(dwg, cents=scale_by_cents, radius=r_bracelet, stroke='red', stroke_width=.75, cx=cx, cy=cy)
-
-dwg.save()
+    dwg.save()
