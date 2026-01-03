@@ -19,8 +19,8 @@ import yaml
 from fractions import Fraction
 from hashlib import sha256
 
-maqamat_temp = yaml.safe_load(open('maqamat.yml'))
-maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
+#maqamat_temp = yaml.safe_load(open('maqamat.yml'))
+maqamat = yaml.safe_load(open('maqamat.yml'))
 
 
 parser = argparse.ArgumentParser(description='Optional app description')
@@ -255,58 +255,36 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
     
         i = i + 1
 
-for maqam in (maqamat):
+frequencies_to_output = maqamat['metadata']['frequencies_to_output']
     
-    intervals = maqamat[maqam]['intervals']
-    by        = maqamat[maqam]['metadata']['by']
+for maqam in (maqamat['maqamat']):
+    
+    intervals = maqamat['maqamat'][maqam]['intervals']
+    by        = maqamat['maqamat'][maqam]['metadata']['by']
+    
+    print(frequencies_to_output)
     
     intervals_str = ','.join(map(str,intervals))
     intervals_str = f"[{intervals_str}]"
     
-#    ratios               = re.sub(r"\s*,\s*", ",", intervals)
     scale_by_ratios  = np.array(eval(intervals_str))
-#    print(scale_by_ratios)
-#    scale_by_ratios = np.array((intervals))
-#    print(scale_by_ratios)
+    
+    for f_root in frequencies_to_output:
+        
+        f_new=frequency_from_ratio(f_root, scale_by_ratios)
+        print(f"# Generating for f_root = {f_new} Hz")
+        
+    #scale_in_frequencies_dict = {}
     
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
+
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
+    
     number_of_intervals  = scale_by_cents.size
     limit_denominator    = (number_of_intervals+10)**4
     description          = f"maqam ={maqam}, type={by}"
 
 # TODO: amazing https://ryanhpratt.github.io/maya/
-
-# exit(0)
-
-    # By Equal Temperament
-    # if args['by_et'] is True:
-    #     number_of_intervals  = args['intervals']
-    #     cents_per_interval   = cents_per_octave/number_of_intervals
-        
-    #     scale_by_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
-    #     scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
-    #     number_of_intervals  = scale_by_cents.size
-    #     limit_denominator    = number_of_intervals-1
-    #     description          = f"Type=equal temperament intervals, Number of intervals={number_of_intervals-1}, keywords=TET,ET,EDO"
-
-    # # By Ratios
-    # if args['by_ratios'] is True:
-    #     ratios               = re.sub(r"\s*,\s*", ",", args['ratios'])
-    #     scale_by_ratios      = np.array(eval(ratios))
-        
-    #     # intervals=ratios
-    #     # intervals_str =','.join(map(str,intervals))
-    #     # intervals2    = f"[{intervals_str}]"
-        
-    #     # scale_by_ratios  = np.array(eval(intervals2))
-    # #    print('scale by rations:  ', scale_by_ratios)
-        
-    #     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
-    #     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
-    #     number_of_intervals  = scale_by_cents.size
-    #     limit_denominator    = number_of_intervals**5
-    #     description          = f"Type=intervals by ratios, Number of intervals={number_of_intervals-1}, keywords=ratios,just,pythogrean"
 
     scale_hash_value=(sha256(bytes(scale_by_cents)).hexdigest())
 
@@ -344,12 +322,9 @@ for maqam in (maqamat):
         rerror    = 100*(aerror)/f_ratio
 
         print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f))
-    #          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
         
         if generate_audio is True:
             generate_frequency(f)
-
-    output_frequencies = [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
 
     print("#-------------------------------------------------------------------------------------------------")
 

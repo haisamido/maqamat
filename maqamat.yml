@@ -1,8 +1,9 @@
 
-
 # cat ./maqamat.yml | yq '.maqamat[].name'
 
-metadata: {}
+metadata:
+  frequencies_to_output:
+    [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
 
 bibliography:
   mikosch2022:
