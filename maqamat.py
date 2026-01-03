@@ -22,10 +22,6 @@ from hashlib import sha256
 maqamat_temp = yaml.safe_load(open('maqamat.yml'))
 maqamat = yaml.safe_load(open('maqamat.yml'))['maqamat']
 
-#intervals=maqamat['urmawi']['intervals']
-
-# print(intervals)
-
 
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
@@ -259,7 +255,7 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
     
         i = i + 1
 
-for maqam in sorted(maqamat):
+for maqam in (maqamat):
     
     intervals = maqamat[maqam]['intervals']
     by        = maqamat[maqam]['metadata']['by']
@@ -276,9 +272,10 @@ for maqam in sorted(maqamat):
     scale_by_cents       = cents_from_ratio(scale_by_ratios,cents_per_octave)
     scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
     number_of_intervals  = scale_by_cents.size
-    limit_denominator    = (number_of_intervals-5)**5
+    limit_denominator    = (number_of_intervals+10)**4
     description          = f"maqam ={maqam}, type={by}"
 
+# TODO: amazing https://ryanhpratt.github.io/maya/
 
 # exit(0)
 
