@@ -8,6 +8,138 @@ metadata:
     [ 61.74, 82.41, 110.00, 146.83, 196.00, 261.63, 329.63, 392.00, 523.25 ]
 
 maqamat:
+  5-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 5
+    intervals: []
+
+  7-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 7
+    intervals: []
+
+  9-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 9
+    intervals: []
+
+  10-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 10
+    intervals: []
+
+  12-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 12
+    intervals: []
+
+  17-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 17
+    intervals: []
+
+  19-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 19
+    intervals: []
+
+  22-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 22
+    intervals: []
+
+  24-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 24
+    intervals: []
+
+  31-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 31
+    intervals: []
+  53-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 53
+    intervals: []  
+  79-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 79
+    intervals: []
+#
+#31 34 41 53 60 72 79
+
   urmawi:
     metadata:
       by: "ratios"
