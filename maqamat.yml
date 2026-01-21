@@ -117,6 +117,29 @@ maqamat:
     name: tet
     number_of_intervals: 31
     intervals: []
+
+  34-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 34
+    intervals: []
+
+  41-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 41
+    intervals: []
+    
   53-tet:
     enabled: true
     metadata:
@@ -127,6 +150,29 @@ maqamat:
     name: tet
     number_of_intervals: 53
     intervals: []  
+
+  60-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 60
+    intervals: []  
+
+  72-tet:
+    enabled: true
+    metadata:
+      by: "tet"
+      source: ""
+      page: 
+      comment: "N-tone equal temperament"
+    name: tet
+    number_of_intervals: 72
+    intervals: []
+
   79-tet:
     enabled: true
     metadata:
@@ -137,8 +183,6 @@ maqamat:
     name: tet
     number_of_intervals: 79
     intervals: []
-#
-#31 34 41 53 60 72 79
 
   urmawi:
     metadata:
@@ -161,6 +205,18 @@ maqamat:
     name: urmawi-decimal
     intervals: 
       [1, 1.05349794, 1.10985791, 1.125, 1.18518519, 1.24859015, 1.265625, 1.33333333, 1.40466392, 1.47981055, 1.5, 1.58024691, 1.66478687, 1.6875, 1.77777778, 1.872885230909922,  1.973080737090289, 2.0]
+
+  # urmawi-cents:
+  #   enabled: true
+  #   metadata:
+  #     by: "cents"
+  #     source: "mikosch2022"
+  #     page: 31
+  #     comment: "intervals of Safi al-Din al-Urmawi's enharmonic scale"
+  #     limit_denominator: 1000000
+  #   name: urmawi-cents
+  #   intervals: 
+  #     [0.0, 90.22499175073571, 180.4499841499973, 203.91000173077484, 294.13500443697626, 384.35998761396127, 407.8200034615497, 498.04499480652754, 588.2699908853483, 678.494987184285, 701.9550008653874, 792.1799926161233, 882.4049902149515, 905.8650025961623, 996.0900004332678, 1086.3149939422879, 1176.5399896153515, 1200.0]
 
   turkish-octave-1:
     enabled: true

@@ -19,7 +19,6 @@ import yaml
 from fractions import Fraction
 from hashlib import sha256
 
-
 maqamat = yaml.safe_load(open('maqamat.yml'))
 
 np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
@@ -268,9 +267,10 @@ for maqam in (maqamat['maqamat']):
         number_of_intervals  = maqamat['maqamat'][maqam]['number_of_intervals']
         cents_per_interval   = cents_per_octave/number_of_intervals
         
+        
         scale_by_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
         scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
-        number_of_intervals  = scale_by_cents.size
+        # number_of_intervals  = scale_by_cents.size
         limit_denominator    = number_of_intervals-1
 
     else:
@@ -279,13 +279,14 @@ for maqam in (maqamat['maqamat']):
         intervals_str = f"[{intervals_str}]"
         
         scale_by_ratios = np.array(eval(intervals_str))
+        
         scale_by_cents  = cents_from_ratio(scale_by_ratios,cents_per_octave)
         scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
         limit_denominator    = (number_of_intervals+10)**4
     
-        number_of_intervals  = scale_by_cents.size
+    number_of_intervals  = scale_by_cents.size-1
         
-    description          = f"maqam ={maqam}, provided type=by {by}, intervals={number_of_intervals}, f0={f0}Hz"
+    description = f"scale type ={maqam}, provided type=by {by}, intervals={number_of_intervals}, f0={f0}Hz"
 
 # TODO: amazing https://ryanhpratt.github.io/maya/
 
@@ -329,7 +330,7 @@ for maqam in (maqamat['maqamat']):
 
         z = np.array2string(freqs, separator=' | ', formatter={'float': lambda x: f"{x:-8.3f}"})[1:-1]
             
-        print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f  %11.6f | %s" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,f,z))
+        print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f | %s" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,z))
         
         if generate_audio is True:
             generate_frequency(f)
