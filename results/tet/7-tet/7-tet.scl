@@ -1,0 +1,12 @@
+! results/tet/7-tet/7-tet.scl
+!
+scale type =7-tet, provided type=by tet, intervals=7, f0=440Hz
+ 7
+!
+ 171.428571
+ 342.857143
+ 514.285714
+ 685.714286
+ 857.142857
+ 1028.571429
+ 1200.000000

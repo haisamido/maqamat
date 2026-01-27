@@ -197,7 +197,7 @@ maqamat:
   urmawi-decimal:
     enabled: true
     metadata:
-      by: "decimal"
+      by: "ratios"
       source: "mikosch2022"
       page: 31
       comment: "intervals of Safi al-Din al-Urmawi's enharmonic scale"

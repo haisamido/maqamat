@@ -20,11 +20,11 @@ import yaml
 from fractions import Fraction
 from hashlib import sha256
 
-maqamat = yaml.safe_load(open('maqamat.yml'))
-
 np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
 
 parser = argparse.ArgumentParser(description='Optional app description')
+parser.add_argument('-m','--maqamat-file', type=str, default='maqamat.yml', help='YAML file defining maqamat scales')
+parser.add_argument('-M','--maqam',        type=str, default=None, help='Generate a specific maqam by name (default: all)')
 parser.add_argument('-f0','--f0', type=float, default=440, help='foo help')
 parser.add_argument('-f1','--f1', type=float, default=440, help='foo help')
 parser.add_argument('-c','--cents-per-octave', type=float, default=1200, help='cents per octave')
@@ -36,6 +36,8 @@ parser.add_argument('-i','--intervals', type=float, default=12,  help='Number of
 parser.add_argument('-R','--by-ratios', action='store_true', default=False, help='providing scale by ratios')
 parser.add_argument('-r','--ratios',    type=str,  default='[1/1, 253/243, 16/15, 10/9 , 9/8, 32/27, 6/5, 5/4, 81/64, 4/3, 27/20, 45/32, 729/512, 3/2, 128/81, 8/5, 5/3, 27/16, 16/9, 9/5, 15/8, 243/128, 2/1]', help='Scale by ratios')
 
+parser.add_argument('-S','--generate-scl',   action='store_true', default=False, help='Generate Scala .scl tuning files')
+parser.add_argument('-V','--verbose',        action='store_true', default=False, help='Verbose output to console')
 parser.add_argument('-A','--generate-audio', action='store_true', default=False, help='Generate audio per interval')
 parser.add_argument('-v','--volume',        type=float, default=1.75,  help='Audio volume')
 parser.add_argument('-s','--sampling-rate', type=int,   default=44100, help='Audio sampling rate, Hz, must be integer')
@@ -45,9 +47,15 @@ parser.add_argument('-d','--duration',      type=float, default=.1,   help='Audi
 parser.add_argument('-w','--canvas_width',  type=float, default=600,   help='Canvas Width')
 parser.add_argument('-H','--canvas_height', type=float, default=600,   help='Canvas Height')
 
+if len(sys.argv) == 1:
+    parser.print_help()
+    sys.exit(0)
+
 args = vars(parser.parse_args())
 
-# Provided                    
+maqamat = yaml.safe_load(open(args['maqamat_file']))
+
+# Provided
 f0                = args['f0']
 f1                = args['f1']
 cents_per_octave  = args['cents_per_octave']
@@ -68,6 +76,12 @@ degrees_per_radian = 360.0/(2*math.pi)
 cx    = canvas_width/2
 cy    = canvas_height/2
 cents = np.array([])
+
+# Scala section
+generate_scl    = args['generate_scl']
+
+# Verbosity
+verbose         = args['verbose']
 
 # Audio section
 generate_audio  = args['generate_audio']
@@ -159,6 +173,11 @@ def generate_frequency(f):
     stream.stop_stream()
     stream.close()
     p.terminate()
+
+def tee(line, lines_list):
+    if verbose:
+        print(line)
+    lines_list.append(line)
 
 def create_scala_file(scale_by_cents, description, filename):
     """Create a Scala .scl file from a scale defined in cents.
@@ -282,10 +301,22 @@ def add_cent_tic_marks(obj='dwg', radius=1.025*r_bracelet, interval=2, stroke='r
 frequencies_to_output = np.array(maqamat['metadata']['frequencies_to_output'])
 
 for maqam in (maqamat['maqamat']):
-    
-    by        = maqamat['maqamat'][maqam]['metadata']['by']
+
+    if args['maqam'] is not None and maqam != args['maqam']:
+        continue
+
+    metadata  = maqamat['maqamat'][maqam]['metadata']
+    by        = metadata['by']
+    source    = metadata.get('source', '')
+    page      = metadata.get('page', '')
+    comment   = metadata.get('comment', '')
     intervals = maqamat['maqamat'][maqam]['intervals']
-    
+
+    output_dir = os.path.join('results', by, maqam)
+    os.makedirs(output_dir, exist_ok=True)
+
+    print(f"  maqam={maqam}  by={by}  source={source}  page={page}  comment={comment}  output={output_dir}")
+
     # By Equal Temperament
     if by == 'et' or by == 'tet' or by == 'edo':
         number_of_intervals  = maqamat['maqamat'][maqam]['number_of_intervals']
@@ -323,12 +354,14 @@ for maqam in (maqamat['maqamat']):
     delta_cents  = np.diff(scale_by_cents)
     delta_cents  = np.append(0, delta_cents)
 
-    print()
-    print("#-------------------------------------------------------------------------------------------------")
-    print(f"# {description}")
-    print("#-------------------------------------------------------------------------------------------------")
-    print("%-4s %11s %11s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","abs error","rel error","f (Hz)"))
-    print("#-------------------------------------------------------------------------------------------------")
+    tsv_lines = []
+
+    tee("", tsv_lines)
+    tee("#-------------------------------------------------------------------------------------------------", tsv_lines)
+    tee(f"# {description}", tsv_lines)
+    tee("#-------------------------------------------------------------------------------------------------", tsv_lines)
+    tee("%-4s %11s %11s  %-8s  %-16s %8s  %11s  %11s %12s" %("#", "cents", "Δ cents","f ratio", "ratio (derived)","fl ratio","abs error","rel error","f (Hz)"), tsv_lines)
+    tee("#-------------------------------------------------------------------------------------------------", tsv_lines)
 
     derived_ratios =np.array([])
 
@@ -338,10 +371,10 @@ for maqam in (maqamat['maqamat']):
 
         fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
         derived_ratios = np.append(derived_ratios, f"{fraction}")
-        
+
         fraction_float = float(fraction)
         fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
-        
+
         arc_per_delta_cent = delta_cents[i] * radians_per_cent
 
         # absolute error
@@ -350,26 +383,22 @@ for maqam in (maqamat['maqamat']):
         rerror    = 100*(aerror)/f_ratio
 
         freqs=(2**(cent/cents_per_octave))*frequencies_to_output
-        
+
 
         z = np.array2string(freqs, separator=' | ', formatter={'float': lambda x: f"{x:-8.3f}"})[1:-1]
-            
-        print("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f | %s" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,z))
-        
+
+        tee("%-4s %11.6f %11.6f  %8.6f  %-16s %8f  %11.8f  %11.8f | %s" %(i,cent,delta_cents[i],f_ratio,fraction,fraction_float,aerror,rerror,z), tsv_lines)
+
         if generate_audio is True:
             generate_frequency(f)
 
-    print("#-------------------------------------------------------------------------------------------------")
+    tee("#-------------------------------------------------------------------------------------------------", tsv_lines)
 
     # Create SCL (Scala file) output
-    if by == 'et' or by == 'tet' or by == 'edo':
-        scl_dir = os.path.join('results', 'by_equal_temperament')
-    else:
-        scl_dir = os.path.join('results', 'by_ratios')
-    os.makedirs(scl_dir, exist_ok=True)
-    scl_filename = os.path.join(scl_dir, f"{maqam}.scl")
-    create_scala_file(scale_by_cents, description, scl_filename)
-    print(f"# Scala file written: {scl_filename}")
+    if generate_scl is True:
+        scl_filename = os.path.join(output_dir, f"{maqam}.scl")
+        create_scala_file(scale_by_cents, description, scl_filename)
+        tee(f"# Scala file written: {scl_filename}", tsv_lines)
 
         # m = hashlib.sha256(given_ratios_str.encode('UTF-8'))
         # print(m.hexdigest())
@@ -380,20 +409,27 @@ for maqam in (maqamat['maqamat']):
     # m = hashlib.sha256(derived_ratios_str.encode('UTF-8'))
     # print(m.hexdigest())
 
-    print(f"# derived ratios: [{derived_ratios_str}]")
+    tee(f"# derived ratios: [{derived_ratios_str}]", tsv_lines)
 
     np.set_printoptions(precision=3,floatmode='fixed')
     #print(np.array(scale_by_cents))
 
     scale_by_cents_str = (', '.join(map(str, scale_by_cents)))
 
-    print(f"# derived  cents: [{scale_by_cents_str}]")
+    tee(f"# derived  cents: [{scale_by_cents_str}]", tsv_lines)
 
-    print(f"# derived  cents: sha256:{scale_hash_value}")
-    print("#-------------------------------------------------------------------------------------------------")
+    tee(f"# derived  cents: sha256:{scale_hash_value}", tsv_lines)
+    tee("#-------------------------------------------------------------------------------------------------", tsv_lines)
+
+    # Write TSV file
+    tsv_filename = os.path.join(output_dir, f"{maqam}.tsv")
+    with open(tsv_filename, 'w') as f:
+        f.write('\n'.join(tsv_lines))
+        f.write('\n')
 
     # Canvas section
-    dwg=create_canvas(output_file=output_file, canvas_width=canvas_width, canvas_height=canvas_height)
+    svg_filename = os.path.join(output_dir, f"{maqam}.svg")
+    dwg=create_canvas(output_file=svg_filename, canvas_width=canvas_width, canvas_height=canvas_height)
 
     add_bracelet_circle(dwg, stroke='red', fill=svgwrite.rgb(200, 200, 200), radius=250, stroke_width=.5 )
     add_bracelet_circle(dwg, stroke='black', stroke_width=.75)
