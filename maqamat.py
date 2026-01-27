@@ -202,6 +202,101 @@ def create_scala_file(scale_by_cents, description, filename):
         f.write('\n'.join(lines))
         f.write('\n')
 
+def create_readme_file(maqam, metadata, intervals, number_of_intervals, by, derived_ratios_str, scale_by_cents_str, scale_hash_value, output_dir, generate_scl, maqamat_data, maqamat_file, tsv_lines):
+    """Create a README.md in the maqam output directory."""
+    source  = metadata.get('source', '')
+    page    = metadata.get('page', '')
+    comment = metadata.get('comment', '')
+    maqamat_file_rel = os.path.relpath(maqamat_file, output_dir)
+
+    lines = []
+    lines.append(f"# {maqam}")
+    lines.append("")
+    if comment:
+        lines.append(comment)
+        lines.append("")
+
+    lines.append(f"Data source: [{os.path.basename(maqamat_file)}]({maqamat_file_rel})")
+    lines.append("")
+
+    # Scale properties
+    lines.append("## Scale properties")
+    lines.append("")
+    lines.append(f"- **Type**: {by}")
+    lines.append(f"- **Number of intervals**: {number_of_intervals}")
+    if by in ('et', 'tet', 'edo'):
+        lines.append(f"- **Equal divisions of the octave**: {number_of_intervals}")
+    else:
+        intervals_str = ', '.join(map(str, intervals))
+        lines.append(f"- **Intervals**: [{intervals_str}]")
+    lines.append("")
+
+    # Source
+    if source:
+        lines.append("## Source")
+        lines.append("")
+        lines.append(f"- **Reference**: {source}")
+        if page:
+            lines.append(f"- **Page**: {page}")
+        lines.append("")
+
+        # Bibliography lookup
+        bib = maqamat_data.get('bibliography', {})
+        if source in bib:
+            entry = bib[source]
+            author    = entry.get('author', '')
+            title     = entry.get('title', '')
+            publisher = entry.get('publisher', '')
+            year      = entry.get('year', '')
+            lines.append("### Bibliography")
+            lines.append("")
+            lines.append(f"> {author}. *{title}*. {publisher}, {year}.")
+            lines.append("")
+
+    # Derived data
+    lines.append("## Derived data")
+    lines.append("")
+    lines.append("```yaml")
+    lines.append(f"derived_ratios: [{derived_ratios_str}]")
+    lines.append(f"cents: [{scale_by_cents_str}]")
+    lines.append(f"sha256: {scale_hash_value}")
+    lines.append("```")
+    lines.append("")
+
+    # Generated files
+    lines.append("## Generated files")
+    lines.append("")
+    lines.append(f"- [{maqam}.tsv]({maqam}.tsv)")
+    lines.append(f"- [{maqam}.svg]({maqam}.svg)")
+    if generate_scl:
+        lines.append(f"- [{maqam}.scl]({maqam}.scl)")
+    lines.append("")
+
+    # Interval table
+    lines.append(f"## Interval table")
+    lines.append("")
+    lines.append("```")
+    for tsv_line in tsv_lines:
+        lines.append(tsv_line)
+    lines.append("```")
+    lines.append("")
+
+    # Scala tuning file
+    if generate_scl:
+        scl_path = os.path.join(output_dir, f"{maqam}.scl")
+        if os.path.exists(scl_path):
+            lines.append(f"## Scala tuning file")
+            lines.append("")
+            lines.append("```")
+            with open(scl_path, 'r') as sf:
+                lines.append(sf.read().rstrip())
+            lines.append("```")
+            lines.append("")
+
+    readme_path = os.path.join(output_dir, "README.md")
+    with open(readme_path, 'w') as f:
+        f.write('\n'.join(lines))
+
 def create_canvas(output_file=output_file, canvas_width=600, canvas_height=600):
     return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
     
@@ -325,8 +420,6 @@ for maqam in (maqamat['maqamat']):
         
         scale_by_cents       = np.arange(0, cents_per_octave+cents_per_interval, cents_per_interval)
         scale_in_frequencies = frequency_from_cents(f1, scale_by_cents, cents_per_octave)
-        # number_of_intervals  = scale_by_cents.size
-        limit_denominator    = number_of_intervals-1
 
     else:
         intervals = maqamat['maqamat'][maqam]['intervals']
@@ -337,9 +430,13 @@ for maqam in (maqamat['maqamat']):
         
         scale_by_cents  = cents_from_ratio(scale_by_ratios,cents_per_octave)
         scale_in_frequencies = frequency_from_ratio(f1,scale_by_ratios)
-        limit_denominator    = (number_of_intervals+10)**4
-    
+
     number_of_intervals  = scale_by_cents.size-1
+
+    if by == 'et' or by == 'tet' or by == 'edo':
+        limit_denominator = number_of_intervals-1
+    else:
+        limit_denominator = (number_of_intervals+10)**4
         
     description = f"scale type ={maqam}, provided type=by {by}, intervals={number_of_intervals}, f0={f0}Hz"
 
@@ -426,6 +523,9 @@ for maqam in (maqamat['maqamat']):
     with open(tsv_filename, 'w') as f:
         f.write('\n'.join(tsv_lines))
         f.write('\n')
+
+    # Write README
+    create_readme_file(maqam, metadata, intervals, number_of_intervals, by, derived_ratios_str, scale_by_cents_str, scale_hash_value, output_dir, generate_scl, maqamat, args['maqamat_file'], tsv_lines)
 
     # Canvas section
     svg_filename = os.path.join(output_dir, f"{maqam}.svg")
