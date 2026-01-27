@@ -1,0 +1,18 @@
+! results/by_ratios/just-intonation-ratios.scl
+!
+scale type =just-intonation-ratios, provided type=by ratios, intervals=13, f0=440Hz
+ 13
+!
+ 111.731285
+ 203.910002
+ 315.641287
+ 386.313714
+ 498.044999
+ 590.223716
+ 609.776284
+ 701.955001
+ 813.686286
+ 884.358713
+ 1017.596288
+ 1088.268715
+ 1200.000000

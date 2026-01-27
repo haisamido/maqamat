@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -158,6 +159,29 @@ def generate_frequency(f):
     stream.stop_stream()
     stream.close()
     p.terminate()
+
+def create_scala_file(scale_by_cents, description, filename):
+    """Create a Scala .scl file from a scale defined in cents.
+
+    The SCL format omits the implicit 1/1 unison (0 cents), so pitch values
+    are written starting from the second degree through the octave.
+
+    See: https://www.huygens-fokker.org/scala/scl_format.html
+    """
+    number_of_notes = len(scale_by_cents) - 1  # exclude the implicit 1/1
+
+    lines = []
+    lines.append(f"! {filename}")
+    lines.append("!")
+    lines.append(description)
+    lines.append(f" {number_of_notes}")
+    lines.append("!")
+    for cent in scale_by_cents[1:]:
+        lines.append(f" {cent:.6f}")
+
+    with open(filename, 'w') as f:
+        f.write('\n'.join(lines))
+        f.write('\n')
 
 def create_canvas(output_file=output_file, canvas_width=600, canvas_height=600):
     return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
@@ -337,35 +361,15 @@ for maqam in (maqamat['maqamat']):
 
     print("#-------------------------------------------------------------------------------------------------")
 
-    # TODO: create SCL (scala file) output
-    # for i, cent in enumerate(scale_by_cents):
-    #     f       = scale_in_frequencies[i]
-    #     f_ratio = frequency_ratios[i]
-
-    #     fraction       = Fraction(f_ratio).limit_denominator(limit_denominator)
-    #     derived_ratios = np.append(derived_ratios, f"{fraction}")
-        
-    #     fraction_float = float(fraction)
-    #     fraction_delta_cents = Fraction(delta_cents[i]).limit_denominator(number_of_intervals)
-        
-    #     arc_per_delta_cent = delta_cents[i] * radians_per_cent
-
-    #     # absolute error
-    #     aerror    = f_ratio - float(fraction)
-    #     # relative error
-    #     rerror    = 100*(aerror)/f_ratio
-
-    #    print("%8.6f" %(cent,))
-    #          ,arcs_per_cents[i],arcs_per_cents[i]*degrees_per_radian,arc_per_delta_cent,arc_per_delta_cent*degrees_per_radian))
-        
-    #     if generate_audio is True:
-    #         generate_frequency(f)
-            
-    # if args['by_ratios'] is True:
-    #     given_ratios_str   = re.sub(",", ", ", ratios)
-    # #    given_ratios_str = intervals_str
-    #     given_ratios_str   = re.sub(r"\[|\]", "", given_ratios_str)
-    #     print(f"# given   ratios: [{given_ratios_str}]")
+    # Create SCL (Scala file) output
+    if by == 'et' or by == 'tet' or by == 'edo':
+        scl_dir = os.path.join('results', 'by_equal_temperament')
+    else:
+        scl_dir = os.path.join('results', 'by_ratios')
+    os.makedirs(scl_dir, exist_ok=True)
+    scl_filename = os.path.join(scl_dir, f"{maqam}.scl")
+    create_scala_file(scale_by_cents, description, scl_filename)
+    print(f"# Scala file written: {scl_filename}")
 
         # m = hashlib.sha256(given_ratios_str.encode('UTF-8'))
         # print(m.hexdigest())

@@ -1,0 +1,10 @@
+! results/by_equal_temperament/5-tet.scl
+!
+scale type =5-tet, provided type=by tet, intervals=5, f0=440Hz
+ 5
+!
+ 240.000000
+ 480.000000
+ 720.000000
+ 960.000000
+ 1200.000000
