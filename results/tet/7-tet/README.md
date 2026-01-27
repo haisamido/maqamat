@@ -23,6 +23,8 @@ sha256: 3663d1f35a9bef41d2453a607eaa338ad35c1e082f1a93b93175fa6f4e2ff4b6
 - [7-tet.tsv](7-tet.tsv)
 - [7-tet.svg](7-tet.svg)
 - [7-tet.scl](7-tet.scl)
+- [7-tet.ly](7-tet.ly)
+- [7-tet.cropped.png](7-tet.cropped.png)
 
 ## Interval table
 
@@ -64,4 +66,36 @@ scale type =7-tet, provided type=by tet, intervals=7, f0=440Hz
  857.142857
  1028.571429
  1200.000000
+```
+
+## LilyPond file
+
+![7-tet scale](7-tet.cropped.png)
+
+```lilypond
+\version "2.24.0"
+
+\header {
+  title = "7-tet"
+  subtitle = "scale type =7-tet, provided type=by tet, intervals=7, f0=440Hz"
+  tagline = ##f
+}
+
+\score {
+  \new Staff {
+    \clef "bass"
+    \cadenzaOn
+    \absolute {
+      c,1^\markup { "0.0¢" }
+      d,1^\markup { "171.4¢" }
+      dis,1^\markup { "342.9¢" }
+      f,1^\markup { "514.3¢" }
+      g,1^\markup { "685.7¢" }
+      a,1^\markup { "857.1¢" }
+      ais,1^\markup { "1028.6¢" }
+      c1^\markup { "1200.0¢" }
+    }
+  }
+  \layout { }
+}
 ```

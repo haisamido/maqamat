@@ -28,6 +28,8 @@ sha256: 64d2a7d5e1a8d71bf5b29b16edc3be7b6df08432e64d47bc55211e8866b86af0
 - [pythagorean-ratios.tsv](pythagorean-ratios.tsv)
 - [pythagorean-ratios.svg](pythagorean-ratios.svg)
 - [pythagorean-ratios.scl](pythagorean-ratios.scl)
+- [pythagorean-ratios.ly](pythagorean-ratios.ly)
+- [pythagorean-ratios.cropped.png](pythagorean-ratios.cropped.png)
 
 ## Interval table
 
@@ -81,4 +83,42 @@ scale type =pythagorean-ratios, provided type=by ratios, intervals=13, f0=440Hz
  996.089998
  1109.775004
  1200.000000
+```
+
+## LilyPond file
+
+![pythagorean-ratios scale](pythagorean-ratios.cropped.png)
+
+```lilypond
+\version "2.24.0"
+
+\header {
+  title = "pythagorean-ratios"
+  subtitle = "scale type =pythagorean-ratios, provided type=by ratios, intervals=13, f0=440Hz"
+  tagline = ##f
+}
+
+\score {
+  \new Staff {
+    \clef "bass"
+    \cadenzaOn
+    \absolute {
+      c,1^\markup { "0.0¢" }
+      cis,1^\markup { "90.2¢" }
+      d,1^\markup { "203.9¢" }
+      dis,1^\markup { "294.1¢" }
+      e,1^\markup { "407.8¢" }
+      f,1^\markup { "498.0¢" }
+      fis,1^\markup { "588.3¢" }
+      fis,1^\markup { "611.7¢" }
+      g,1^\markup { "702.0¢" }
+      gis,1^\markup { "792.2¢" }
+      a,1^\markup { "905.9¢" }
+      ais,1^\markup { "996.1¢" }
+      b,1^\markup { "1109.8¢" }
+      c1^\markup { "1200.0¢" }
+    }
+  }
+  \layout { }
+}
 ```

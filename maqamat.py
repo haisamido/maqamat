@@ -8,6 +8,8 @@ import argparse
 import re
 import hashlib
 
+import subprocess
+import shutil
 import wave
 import time
 import sys
@@ -270,6 +272,10 @@ def create_readme_file(maqam, metadata, intervals, number_of_intervals, by, deri
     lines.append(f"- [{maqam}.svg]({maqam}.svg)")
     if generate_scl:
         lines.append(f"- [{maqam}.scl]({maqam}.scl)")
+    lines.append(f"- [{maqam}.ly]({maqam}.ly)")
+    ly_png = os.path.join(output_dir, f"{maqam}.cropped.png")
+    if os.path.exists(ly_png):
+        lines.append(f"- [{maqam}.cropped.png]({maqam}.cropped.png)")
     lines.append("")
 
     # Interval table
@@ -293,9 +299,86 @@ def create_readme_file(maqam, metadata, intervals, number_of_intervals, by, deri
             lines.append("```")
             lines.append("")
 
+    # LilyPond file
+    ly_path = os.path.join(output_dir, f"{maqam}.ly")
+    if os.path.exists(ly_path):
+        lines.append(f"## LilyPond file")
+        lines.append("")
+        ly_png_path = os.path.join(output_dir, f"{maqam}.cropped.png")
+        if os.path.exists(ly_png_path):
+            lines.append(f"![{maqam} scale]({maqam}.cropped.png)")
+            lines.append("")
+        lines.append("```lilypond")
+        with open(ly_path, 'r') as lf:
+            lines.append(lf.read().rstrip())
+        lines.append("```")
+        lines.append("")
+
     readme_path = os.path.join(output_dir, "README.md")
     with open(readme_path, 'w') as f:
         f.write('\n'.join(lines))
+
+def create_lilypond_file(maqam, scale_by_cents, description, output_dir):
+    """Create a LilyPond .ly file rendering the scale as whole notes starting at C2."""
+    pitch_names = ['c', 'cis', 'd', 'dis', 'e', 'f', 'fis', 'g', 'gis', 'a', 'ais', 'b']
+
+    def cents_to_lilypond_pitch(cent):
+        nearest_semitone = round(cent / 100)
+        pitch_index = nearest_semitone % 12
+        octave_offset = nearest_semitone // 12
+        name = pitch_names[pitch_index]
+        # Base octave is C2 = "c," in LilyPond absolute mode
+        # octave_offset 0 → suffix ","  (C2 octave)
+        # octave_offset 1 → suffix ""   (C3 octave)
+        # octave_offset 2 → suffix "'"  (C4 octave)
+        if octave_offset == 0:
+            suffix = ","
+        elif octave_offset == 1:
+            suffix = ""
+        else:
+            suffix = "'" * (octave_offset - 1)
+        return f"{name}{suffix}"
+
+    note_lines = []
+    for cent in scale_by_cents:
+        pitch = cents_to_lilypond_pitch(cent)
+        note_lines.append(f'      {pitch}1^\\markup {{ "{cent:.1f}¢" }}')
+
+    lines = []
+    lines.append('\\version "2.24.0"')
+    lines.append("")
+    lines.append("\\header {")
+    lines.append(f'  title = "{maqam}"')
+    lines.append(f'  subtitle = "{description}"')
+    lines.append("  tagline = ##f")
+    lines.append("}")
+    lines.append("")
+    lines.append("\\score {")
+    lines.append("  \\new Staff {")
+    lines.append('    \\clef "bass"')
+    lines.append("    \\cadenzaOn")
+    lines.append("    \\absolute {")
+    for note_line in note_lines:
+        lines.append(note_line)
+    lines.append("    }")
+    lines.append("  }")
+    lines.append("  \\layout { }")
+    lines.append("}")
+    lines.append("")
+
+    ly_filename = os.path.join(output_dir, f"{maqam}.ly")
+    with open(ly_filename, 'w') as f:
+        f.write('\n'.join(lines))
+
+    # Render to PNG if lilypond is available
+    if shutil.which('lilypond'):
+        output_prefix = os.path.join(output_dir, maqam)
+        result = subprocess.run(
+            ['lilypond', '--png', '-dcrop', '-dresolution=150', '-o', output_prefix, ly_filename],
+            capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            print(f"  Warning: lilypond rendering failed for {maqam}: {result.stderr.strip()}")
 
 def create_canvas(output_file=output_file, canvas_width=600, canvas_height=600):
     return svgwrite.Drawing(output_file, size=(canvas_width, canvas_height))
@@ -523,6 +606,9 @@ for maqam in (maqamat['maqamat']):
     with open(tsv_filename, 'w') as f:
         f.write('\n'.join(tsv_lines))
         f.write('\n')
+
+    # Write LilyPond file (before README so it can embed the content)
+    create_lilypond_file(maqam, scale_by_cents, description, output_dir)
 
     # Write README
     create_readme_file(maqam, metadata, intervals, number_of_intervals, by, derived_ratios_str, scale_by_cents_str, scale_hash_value, output_dir, generate_scl, maqamat, args['maqamat_file'], tsv_lines)

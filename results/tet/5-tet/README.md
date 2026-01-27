@@ -23,6 +23,8 @@ sha256: 6aecf54657e156cf782e56b9d724358e8f6200cdec7d99e374e2502c9d2bc3dd
 - [5-tet.tsv](5-tet.tsv)
 - [5-tet.svg](5-tet.svg)
 - [5-tet.scl](5-tet.scl)
+- [5-tet.ly](5-tet.ly)
+- [5-tet.cropped.png](5-tet.cropped.png)
 
 ## Interval table
 
@@ -60,4 +62,34 @@ scale type =5-tet, provided type=by tet, intervals=5, f0=440Hz
  720.000000
  960.000000
  1200.000000
+```
+
+## LilyPond file
+
+![5-tet scale](5-tet.cropped.png)
+
+```lilypond
+\version "2.24.0"
+
+\header {
+  title = "5-tet"
+  subtitle = "scale type =5-tet, provided type=by tet, intervals=5, f0=440Hz"
+  tagline = ##f
+}
+
+\score {
+  \new Staff {
+    \clef "bass"
+    \cadenzaOn
+    \absolute {
+      c,1^\markup { "0.0¢" }
+      d,1^\markup { "240.0¢" }
+      f,1^\markup { "480.0¢" }
+      g,1^\markup { "720.0¢" }
+      ais,1^\markup { "960.0¢" }
+      c1^\markup { "1200.0¢" }
+    }
+  }
+  \layout { }
+}
 ```
